@@ -1,0 +1,38 @@
+
+# Firebase
+.firebase
+firebase-debug.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode
+.idea
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+
+# Build
+dist/
+build/
+*.log
+
+# Config
+config.js
+firebase-config.js (keep the template, ignore instances)
+
+# Testing
+coverage/
+.nyc_output
+
+# OS
+Thumbs.db
+.AppleDouble

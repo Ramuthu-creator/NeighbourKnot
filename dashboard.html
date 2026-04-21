@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NeighborKnot</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <div class="logo">
+                <h1>Neighbor<span class="logo-knot">Knot</span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="explore.html">Explore Skills</a>
+                <a href="profile.html">Profile</a>
+                <a href="#" id="logout-btn" class="btn-login">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-user">
+                <div class="user-avatar" id="user-avatar">RD</div>
+                <div class="user-info">
+                    <h3 id="user-name">User Name</h3>
+                    <p id="user-status">Active</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" data-section="overview">
+                    <span class="menu-icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="menu-item" data-section="my-skills">
+                    <span class="menu-icon">📚</span>
+                    <span>My Skills</span>
+                </a>
+                <a href="#" class="menu-item" data-section="bookings">
+                    <span class="menu-icon">📅</span>
+                    <span>My Bookings</span>
+                </a>
+                <a href="#" class="menu-item" data-section="messages">
+                    <span class="menu-icon">💬</span>
+                    <span>Messages</span>
+                    <span class="badge" id="message-badge">0</span>
+                </a>
+                <a href="#" class="menu-item" data-section="reviews">
+                    <span class="menu-icon">⭐</span>
+                    <span>Reviews</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="token-display">
+                    <div class="token-icon">💰</div>
+                    <div class="token-info">
+                        <p>Available Tokens</p>
+                        <h4 id="token-count">10</h4>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="section-header">
+                    <h2>Welcome back, <span id="welcome-name">User</span>!</h2>
+                    <p>Here's your learning and teaching overview</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-content">
+                            <p class="stat-label">Skills Offered</p>
+                            <h3 class="stat-value" id="skills-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <p class="stat-label">Sessions Completed</p>
+                            <h3 class="stat-value" id="sessions-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <p class="stat-label">Rating</p>
+                            <h3 class="stat-value" id="rating-value">0.0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-content">
+                            <p class="stat-label">Reviews</p>
+                            <h3 class="stat-value" id="reviews-count">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="actions-grid">
+                        <button class="action-btn" id="add-skill-btn">
+                            <span class="action-icon">➕</span>
+                            <span>Add New Skill</span>
+                        </button>
+                        <button class="action-btn" id="explore-btn">
+                            <span class="action-icon">🔍</span>
+                            <span>Explore Skills</span>
+                        </button>
+                        <button class="action-btn" id="message-btn">
+                            <span class="action-icon">💬</span>
+                            <span>View Messages</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div id="activity-list" class="activity-list">
+                        <p class="empty-state">No recent activity</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Skills Section -->
+            <section id="my-skills" class="content-section">
+                <div class="section-header">
+                    <h2>My Skills</h2>
+                    <button class="btn btn-primary" id="add-skill-modal-btn">+ Add Skill</button>
+                </div>
+
+                <div id="skills-list" class="skills-list">
+                    <p class="empty-state">You haven't added any skills yet. <a href="#" id="start-teaching">Start teaching</a></p>
+                </div>
+            </section>
+
+            <!-- Bookings Section -->
+            <section id="bookings" class="content-section">
+                <div class="section-header">
+                    <h2>My Bookings</h2>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="upcoming">Upcoming</button>
+                    <button class="tab" data-tab="past">Past</button>
+                </div>
+
+                <div id="upcoming-bookings" class="bookings-list">
+                    <p class="empty-state">No upcoming bookings</p>
+                </div>
+                <div id="past-bookings" class="bookings-list" style="display: none;">
+                    <p class="empty-state">No past bookings</p>
+                </div>
+            </section>
+
+            <!-- Messages Section -->
+            <section id="messages" class="content-section">
+                <div class="section-header">
+                    <h2>Messages</h2>
+                </div>
+
+                <div class="messages-container">
+                    <div id="conversations-list" class="conversations-list">
+                        <p class="empty-state">No conversations yet</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section id="reviews" class="content-section">
+                <div class="section-header">
+                    <h2>Reviews & Ratings</h2>
+                </div>
+
+                <div id="reviews-list" class="reviews-list">
+                    <p class="empty-state">No reviews yet. Complete sessions to get reviews!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Skill Modal -->
+    <div id="add-skill-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Skill</h2>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <form id="add-skill-form" class="modal-body">
+                <div class="form-group">
+                    <label for="skill-name">Skill Name</label>
+                    <input type="text" id="skill-name" name="name" required placeholder="e.g., Guitar Playing">
+                </div>
+
+                <div class="form-group">
+                    <label for="skill-description">Description</label>
+                    <textarea id="skill-description" name="description" rows="3" required placeholder="Describe what you can teach..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="skill-level">Level</label>
+                        <select id="skill-level" name="level">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate" selected>Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Expert">Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tokens-per-hour">Tokens per Hour</label>
+                        <input type="number" id="tokens-per-hour" name="tokensPerHour" min="1" max="100" value="5" required>
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Skill</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 NeighborKnot. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
