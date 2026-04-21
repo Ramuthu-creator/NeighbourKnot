@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Skills - NeighborKnot</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/explore.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <div class="logo">
+                <h1>Neighbor<span class="logo-knot">Knot</span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="explore.html">Explore Skills</a>
+                <a href="profile.html">Profile</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container explore-container">
+        <!-- Sidebar Filters -->
+        <aside class="explore-sidebar">
+            <div class="filter-section">
+                <h3>Filters</h3>
+                
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" id="search-input" placeholder="Search skills...">
+                </div>
+
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="category-filter">
+                        <option value="">All Categories</option>
+                        <option value="music">Music</option>
+                        <option value="languages">Languages</option>
+                        <option value="fitness">Fitness</option>
+                        <option value="cooking">Cooking</option>
+                        <option value="art">Art & Design</option>
+                        <option value="tech">Technology</option>
+                        <option value="business">Business</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Level</label>
+                    <div class="checkbox-filters">
+                        <label><input type="checkbox" name="level" value="Beginner"> Beginner</label>
+                        <label><input type="checkbox" name="level" value="Intermediate"> Intermediate</label>
+                        <label><input type="checkbox" name="level" value="Advanced"> Advanced</label>
+                        <label><input type="checkbox" name="level" value="Expert"> Expert</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Tokens per Hour</label>
+                    <input type="range" id="tokens-range" min="0" max="100" value="50">
+                    <span id="tokens-display">Up to 50 tokens</span>
+                </div>
+
+                <div class="filter-group">
+                    <label>Minimum Rating</label>
+                    <div class="rating-filter">
+                        <input type="radio" name="rating" value="" checked> All Ratings
+                        <input type="radio" name="rating" value="4"> 4+ Stars
+                        <input type="radio" name="rating" value="3"> 3+ Stars
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="explore.applyFilters()">Apply Filters</button>
+                <button class="btn btn-secondary" onclick="explore.resetFilters()">Reset</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="explore-content">
+            <div class="explore-header">
+                <h2>Explore Skills</h2>
+                <p>Discover skills from your community</p>
+            </div>
+
+            <div class="sort-bar">
+                <label>Sort by:</label>
+                <select id="sort-by">
+                    <option value="recent">Most Recent</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="price">Lowest Price</option>
+                    <option value="popularity">Most Popular</option>
+                </select>
+            </div>
+
+            <div id="skills-grid" class="skills-grid">
+                <p class="loading">Loading skills...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Skill Details Modal -->
+    <div id="skill-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Skill Details</h2>
+                <button type="button" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="skill-modal-body">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 NeighborKnot. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/explore.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
