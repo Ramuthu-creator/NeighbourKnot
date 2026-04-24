@@ -1,21 +1,30 @@
-/* Authentication Page Styles */
+/* ==========================================================================
+   AUTHENTICATION 3D GLASSMORPHISM
+   ========================================================================== */
 
 .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
     padding: 20px;
+    /* Background handled by global style.css */
 }
 
+/* The Main 3D Glass Form Wrapper */
 .auth-form-wrapper {
-    background: white;
-    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.3); /* 3D highlight */
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
     padding: 40px;
     width: 100%;
     max-width: 450px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    color: white;
 }
 
 .auth-form-wrapper.auth-form-large {
@@ -30,14 +39,15 @@
 .auth-header h1 {
     font-size: 28px;
     margin-bottom: 10px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .auth-header p {
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 16px;
 }
 
-/* Forms */
+/* Forms Content */
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -52,30 +62,14 @@
 .form-group label {
     font-weight: 600;
     margin-bottom: 8px;
-    color: var(--text-dark);
+    color: white;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
+/* Inputs styled in style.css globally for glass effect */
 
 .form-group small {
     font-size: 12px;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
     margin-top: 4px;
 }
 
@@ -85,144 +79,23 @@
     gap: 20px;
 }
 
-@media (max-width: 768px) {
-    .auth-form-wrapper {
-        padding: 30px 20px;
-        max-width: 100%;
-    }
-    
-    .auth-form-wrapper.auth-form-large {
-        max-width: 100%;
-    }
-    
-    .auth-header h1 {
-        font-size: 24px;
-    }
-    
-    .auth-header p {
-        font-size: 14px;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .auth-container {
-        padding: 10px;
-    }
-    
-    .auth-form-wrapper {
-        padding: 20px;
-        border-radius: 8px;
-    }
-    
-    .auth-header {
-        margin-bottom: 30px;
-    }
-    
-    .auth-header h1 {
-        font-size: 20px;
-    }
-    
-    .auth-header p {
-        font-size: 13px;
-    }
-    
-    .auth-form {
-        gap: 15px;
-    }
-    
-    .form-group label {
-        font-size: 14px;
-    }
-    
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        font-size: 16px;
-        padding: 10px;
-    }
-    
-    .btn-block {
-        padding: 12px;
-        font-size: 14px;
-        margin-top: 8px;
-    }
-    
-    .auth-footer {
-        margin-top: 20px;
-        padding-top: 15px;
-    }
-    
-    .checkbox-group {
-        margin: 8px 0;
-    }
-    
-    .checkbox-group label {
-        font-size: 13px;
-    }
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Form Options & Checkboxes */
+.form-options, .checkbox-group {
     font-size: 14px;
-    margin: 10px 0;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-.form-options label {
+.form-options label, .checkbox-group label {
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
 }
 
-.form-options input[type="checkbox"] {
-    cursor: pointer;
+.form-options a, .checkbox-group a {
+    color: #60A5FA;
 }
 
-.form-options a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.form-options a:hover {
-    text-decoration: underline;
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 10px 0;
-}
-
-.checkbox-group label {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.checkbox-group input {
-    margin-top: 2px;
-    cursor: pointer;
-}
-
-.checkbox-group a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.checkbox-group a:hover {
-    text-decoration: underline;
-}
-
-/* Button Block */
 .btn-block {
     width: 100%;
     padding: 14px;
@@ -235,65 +108,45 @@
     text-align: center;
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .auth-footer p {
-    color: var(--text-light);
-    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .auth-footer a {
-    color: var(--primary-color);
+    color: #60A5FA;
     font-weight: 600;
-    text-decoration: none;
 }
 
-.auth-footer a:hover {
-    text-decoration: underline;
+/* Notifications */
+.error-message, .success-message {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+    backdrop-filter: blur(10px);
 }
 
-/* Error Messages */
 .error-message {
-    padding: 10px 12px;
-    background-color: #FEE2E2;
-    border-left: 4px solid var(--accent-color);
-    border-radius: 4px;
-    color: #991B1B;
-    font-size: 14px;
-    display: none;
+    background: rgba(239, 68, 68, 0.2);
+    border-left: 4px solid #EF4444;
+    color: #FECACA;
 }
 
-.error-message.show {
-    display: block;
-}
-
-/* Success Messages */
 .success-message {
-    padding: 10px 12px;
-    background-color: #DCFCE7;
+    background: rgba(16, 185, 129, 0.2);
     border-left: 4px solid #10B981;
-    border-radius: 4px;
-    color: #065F46;
-    font-size: 14px;
-    display: none;
+    color: #A7F3D0;
 }
 
-.success-message.show {
+.error-message.show, .success-message.show {
     display: block;
 }
 
 /* Responsive */
-@media (max-width: 480px) {
-    .auth-form-wrapper {
-        padding: 30px 20px;
-    }
-
-    .auth-header h1 {
-        font-size: 24px;
-    }
-
-    .auth-header p {
-        font-size: 14px;
-    }
+@media (max-width: 768px) {
+    .auth-form-wrapper { padding: 30px 20px; }
+    .form-row { grid-template-columns: 1fr; }
 }
