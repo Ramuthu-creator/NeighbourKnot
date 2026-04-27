@@ -130,7 +130,7 @@ class Profile {
     /**
      * Handle save profile
      */
-    handleSaveProfile(e) {
+    async handleSaveProfile(e) {
         e.preventDefault();
 
         const updates = {
@@ -140,7 +140,7 @@ class Profile {
             bio: document.getElementById('edit-bio').value
         };
 
-        const result = auth.updateProfile(updates);
+        const result = await authManager.updateProfile(updates);
 
         if (result.success) {
             this.user = result.user;

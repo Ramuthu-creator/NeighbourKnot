@@ -7,16 +7,16 @@ class Explore {
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
-        this.loadAndDisplaySkills();
+        await this.loadAndDisplaySkills();
     }
 
     /**
      * Load all skills from all users
      */
-    loadAndDisplaySkills() {
-        const allUsers = auth.getAllUsers();
+    async loadAndDisplaySkills() {
+        const allUsers = await authManager.getAllUsers();
         const allSkills = [];
 
         allUsers.forEach(user => {
@@ -163,7 +163,7 @@ class Explore {
     /**
      * Book a session
      */
-    bookSession(skillId, teacherId) {
+    async bookSession(skillId, teacherId) {
         const skill = this.filteredSkills.find(s => s.id === skillId);
         
         if (this.currentUser.tokens < skill.tokensPerHour) {
@@ -171,8 +171,29 @@ class Explore {
             return;
         }
 
-        // TODO: Implement booking system with date/time selection
-        showNotification('Booking feature coming soon!', 'info');
+        const transferResult = await authManager.transferTokens(teacherId, skill.tokensPerHour, 'Booking: ' + skill.name);
+        if (!transferResult.success) {
+            showNotification('Failed to transfer tokens: ' + transferResult.error, 'error');
+            return;
+        }
+
+        const bookingData = {
+            teacherId: teacherId,
+            skillId: skillId,
+            skillName: skill.name,
+            date: new Date().toISOString(),
+            time: new Date().toLocaleTimeString(),
+            tokensCost: skill.tokensPerHour
+        };
+
+        const bookingResult = await authManager.createBooking(bookingData);
+        if (bookingResult.success) {
+            this.currentUser.tokens -= skill.tokensPerHour;
+            showNotification('Successfully booked session for ' + skill.name + '!', 'success');
+            document.getElementById('skill-modal').classList.remove('show');
+        } else {
+            showNotification('Failed to create booking: ' + bookingResult.error, 'error');
+        }
     }
 
     /**

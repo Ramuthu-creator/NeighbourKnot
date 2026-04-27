@@ -1,89 +1,140 @@
 /* ==========================================================================
-   PROFILE PAGE 3D GLASSMORPHISM
+   PROFILE PAGE PREMIUM GLASSMORPHISM
    ========================================================================== */
 
-.profile-container { padding: 20px 0; }
+.profile-container { padding: 32px 0; }
 
 /* Profile Header Glass */
 .profile-cover {
-    height: 200px;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.6), rgba(244, 63, 94, 0.6));
+    height: 220px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(16, 185, 129, 0.4));
     border-radius: 24px 24px 0 0;
     margin-bottom: -60px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-bottom: none;
 }
 
 .profile-info {
-    background: rgba(30, 41, 59, 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
     border-top: none;
     border-radius: 0 0 24px 24px;
-    padding: 60px 30px 30px;
+    padding: 60px 40px 40px;
     display: grid;
     grid-template-columns: auto 1fr auto;
-    gap: 30px;
+    gap: 40px;
     align-items: center;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-    color: white;
+    box-shadow: var(--glass-shadow);
+    color: var(--text-primary);
 }
 
 .profile-avatar {
-    width: 120px; height: 120px; border-radius: 50%;
-    background: linear-gradient(135deg, #0EA5E9, #F43F5E);
-    border: 4px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    width: 130px; height: 130px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: 4px solid var(--bg-main);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: bold; color: white;
 }
 
-.profile-location { color: rgba(255, 255, 255, 0.7); }
-.stat-number { color: #60A5FA; }
-.stat-label { color: rgba(255, 255, 255, 0.6); }
+.profile-details h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.profile-location { 
+    color: var(--text-secondary); 
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+.profile-stats {
+    display: flex; gap: 32px;
+}
+.profile-stat-box { display: flex; flex-direction: column; align-items: center; }
+.stat-number { color: var(--text-primary); font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.stat-label { color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
 
 /* Main Profile Content */
 .profile-content {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 30px;
-    margin-top: 30px;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    margin-top: 32px;
 }
 
 /* 3D Glass Sections & Sidebar Cards */
 .profile-section, .sidebar-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
-    color: white;
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid var(--glass-border-light);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: var(--glass-shadow);
+    color: var(--text-primary);
+    margin-bottom: 32px;
 }
 
-.profile-section p { color: rgba(255, 255, 255, 0.8); }
+.profile-section h2, .sidebar-card h3 {
+    font-size: 20px;
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+.profile-section p { color: var(--text-secondary); line-height: 1.6; }
 
 /* Skill & Review Cards Inner Glass */
 .skill-showcase-card, .review-showcase-card {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.4);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 16px;
+    transition: transform 0.2s;
 }
 
-.skill-showcase-card { border-left: 4px solid #0EA5E9; }
-.review-showcase-card { border-left: 4px solid #F59E0B; }
+.skill-showcase-card:hover, .review-showcase-card:hover {
+    transform: translateX(4px);
+}
 
-.review-text, .review-date { color: rgba(255, 255, 255, 0.7); }
+.skill-showcase-card { border-left: 3px solid var(--primary-color); }
+.review-showcase-card { border-left: 3px solid #f59e0b; } /* Warning/Gold */
+
+.skill-showcase-card h4, .review-showcase-card h4 { margin: 0 0 8px 0; font-size: 16px; }
+.review-text { color: var(--text-secondary); font-style: italic; margin-bottom: 8px; }
+.review-date { color: var(--text-muted); font-size: 12px; }
 
 /* Sidebar Stats */
-.verification-item, .stat-item {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.verification-list, .stats-list {
+    display: flex; flex-direction: column; gap: 16px;
 }
-.stat-value { color: #60A5FA; }
+
+.verification-item, .stat-item {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+.verification-item:last-child, .stat-item:last-child {
+    border-bottom: none; padding-bottom: 0;
+}
+
+.stat-item span:first-child { color: var(--text-secondary); }
+.stat-value { color: var(--text-primary); font-weight: 600; }
 
 @media (max-width: 1024px) {
     .profile-content { grid-template-columns: 1fr; }
-    .profile-info { grid-template-columns: 1fr; padding: 20px; }
+    .profile-info { grid-template-columns: 1fr; padding: 60px 24px 24px; gap: 24px; text-align: center; }
+    .profile-stats { justify-content: center; }
+    .profile-location { justify-content: center; }
 }

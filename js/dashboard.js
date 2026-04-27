@@ -6,12 +6,12 @@ class Dashboard {
         this.init();
     }
 
-    init() {
+    async init() {
         this.renderUserInfo();
         this.setupEventListeners();
         this.renderStats();
         this.renderSkills();
-        this.renderBookings();
+        await this.renderBookings();
     }
 
     /**
@@ -72,43 +72,45 @@ class Dashboard {
     /**
      * Render bookings
      */
-    renderBookings() {
+    async renderBookings() {
         const upcomingBookings = document.getElementById('upcoming-bookings');
         const pastBookings = document.getElementById('past-bookings');
 
-        // Mock bookings data
-        const bookings = [
-            {
-                id: '1',
-                skillName: 'Guitar Lessons',
-                userName: 'John Doe',
-                date: '2024-04-20',
-                time: '10:00 AM',
-                status: 'confirmed'
-            }
-        ];
+        if (!upcomingBookings || !pastBookings) return;
 
-        if (bookings.length === 0) {
-            upcomingBookings.innerHTML = '<p class="empty-state">No upcoming bookings</p>';
-        } else {
-            upcomingBookings.innerHTML = bookings.map(booking => `
+        const result = await authManager.getUserBookings(this.user.id);
+        const bookings = result.success ? result.bookings : [];
+
+        const now = new Date();
+        const upcoming = bookings.filter(b => new Date(b.date) >= now);
+        const past = bookings.filter(b => new Date(b.date) < now);
+
+        const renderBookingCards = (bookingList) => {
+            if (bookingList.length === 0) {
+                return '<p class="empty-state">No bookings found</p>';
+            }
+            return bookingList.map(booking => `
                 <div class="booking-card">
                     <div>
-                        <h3>${booking.skillName}</h3>
-                        <div class="booking-details">
-                            <div>👤 ${booking.userName}</div>
-                            <div>📅 ${formatDate(booking.date)}</div>
-                            <div>⏰ ${booking.time}</div>
+                        <h3 style="color: var(--primary-color);">${booking.skillName}</h3>
+                        <div class="booking-details" style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                            <div><strong style="color:var(--text-secondary);">Role:</strong> ${booking.role}</div>
+                            <div><strong style="color:var(--text-secondary);">With:</strong> ${booking.displayName}</div>
+                            <div><strong style="color:var(--text-secondary);">Date:</strong> ${formatDate(booking.date)}</div>
+                            <div><strong style="color:var(--text-secondary);">Time:</strong> ${booking.time}</div>
+                            <div><strong style="color:var(--text-secondary);">Tokens:</strong> ${booking.tokensCost}</div>
                         </div>
-                        <span class="booking-status">${booking.status}</span>
+                        <span class="booking-status" style="display:inline-block; margin-top:8px; padding:4px 8px; background:rgba(16,185,129,0.1); color:#10b981; border-radius:4px; font-size:12px;">${booking.status}</span>
                     </div>
-                    <div class="booking-actions">
-                        <button onclick="dashboard.startSession('${booking.id}')">Start</button>
-                        <button onclick="dashboard.rescheduleBooking('${booking.id}')">Reschedule</button>
+                    <div class="booking-actions" style="display:flex; flex-direction:column; gap:8px;">
+                        <button class="btn btn-primary" onclick="dashboard.startSession('${booking.id}')">Start</button>
                     </div>
                 </div>
             `).join('');
-        }
+        };
+
+        upcomingBookings.innerHTML = renderBookingCards(upcoming);
+        pastBookings.innerHTML = renderBookingCards(past);
     }
 
     /**
@@ -214,7 +216,7 @@ class Dashboard {
     /**
      * Handle add skill form submission
      */
-    handleAddSkill(e) {
+    async handleAddSkill(e) {
         e.preventDefault();
 
         const skill = {
@@ -224,7 +226,7 @@ class Dashboard {
             tokensPerHour: parseInt(document.getElementById('tokens-per-hour').value)
         };
 
-        const result = auth.addSkill(skill);
+        const result = await authManager.addSkill(skill);
         
         if (result.success) {
             showNotification('Skill added successfully!', 'success');
@@ -256,9 +258,9 @@ class Dashboard {
     /**
      * Delete skill
      */
-    deleteSkill(skillId) {
+    async deleteSkill(skillId) {
         if (confirm('Are you sure you want to delete this skill?')) {
-            const result = auth.removeSkill(skillId);
+            const result = await authManager.removeSkill(skillId);
             if (result.success) {
                 showNotification('Skill deleted successfully!', 'success');
                 this.renderSkills();
