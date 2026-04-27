@@ -344,6 +344,94 @@ class AuthManager {
     }
 
     /**
+     * Create a new booking
+     * @param {Object} bookingData - Booking details
+     */
+    async createBooking(bookingData) {
+        if (!this.currentUser) {
+            return { success: false, error: 'No user logged in' };
+        }
+
+        try {
+            if (typeof db === 'undefined') {
+                return { success: false, error: 'Firebase not initialized' };
+            }
+
+            const newBooking = {
+                id: this.generateId(),
+                learnerId: this.currentUser.id,
+                teacherId: bookingData.teacherId,
+                skillId: bookingData.skillId,
+                skillName: bookingData.skillName,
+                date: bookingData.date,
+                time: bookingData.time,
+                tokensCost: bookingData.tokensCost,
+                status: 'confirmed',
+                createdAt: new Date().toISOString()
+            };
+
+            await db.collection('bookings').doc(newBooking.id).set(newBooking);
+
+            // Update user total sessions count
+            const newTotalSessions = (this.currentUser.totalSessions || 0) + 1;
+            await this.updateProfile({ totalSessions: newTotalSessions });
+
+            // Also update teacher total sessions
+            const teacherDoc = await db.collection('users').doc(bookingData.teacherId).get();
+            if (teacherDoc.exists) {
+                const teacherSessions = (teacherDoc.data().totalSessions || 0) + 1;
+                await db.collection('users').doc(bookingData.teacherId).update({ totalSessions: teacherSessions });
+            }
+
+            return { success: true, booking: newBooking };
+        } catch (error) {
+            console.error('Create booking error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Get user bookings
+     * @param {string} userId - User ID
+     */
+    async getUserBookings(userId) {
+        try {
+            if (typeof db === 'undefined') {
+                return { success: false, bookings: [] };
+            }
+
+            // Get bookings where user is learner
+            const learnerSnapshot = await db.collection('bookings').where('learnerId', '==', userId).get();
+            const learnerBookings = learnerSnapshot.docs.map(doc => doc.data());
+
+            // Get bookings where user is teacher
+            const teacherSnapshot = await db.collection('bookings').where('teacherId', '==', userId).get();
+            const teacherBookings = teacherSnapshot.docs.map(doc => doc.data());
+
+            // Combine and sort by date descending
+            const allBookings = [...learnerBookings, ...teacherBookings].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Fetch names for UI display
+            for (let booking of allBookings) {
+                if (booking.learnerId === userId) {
+                    const teacher = await this.getUserById(booking.teacherId);
+                    booking.displayName = teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher';
+                    booking.role = 'Learner';
+                } else {
+                    const learner = await this.getUserById(booking.learnerId);
+                    booking.displayName = learner ? `${learner.firstName} ${learner.lastName}` : 'Unknown Learner';
+                    booking.role = 'Teacher';
+                }
+            }
+
+            return { success: true, bookings: allBookings };
+        } catch (error) {
+            console.error('Get user bookings error:', error);
+            return { success: false, bookings: [], error: error.message };
+        }
+    }
+
+    /**
      * Generate unique ID
      */
     generateId() {
@@ -385,7 +473,9 @@ class AuthManager {
         if (result.success) {
             window.location.href = 'dashboard.html';
         } else {
-            alert(result.error);
+            // Clean up Firebase error message for display
+            const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
+            showNotification(friendlyError || 'Login failed. Please check your credentials.', 'error');
         }
     }
 
@@ -410,7 +500,9 @@ class AuthManager {
         if (result.success) {
             window.location.href = 'dashboard.html';
         } else {
-            alert(result.error);
+            // Clean up Firebase error message for display
+            const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
+            showNotification(friendlyError || 'Signup failed. Please try again.', 'error');
         }
     }
 
