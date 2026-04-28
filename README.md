@@ -77,7 +77,6 @@ A web platform where users exchange skills using tokens instead of money, making
 
 ```
 NeighborKnot/
-├── index.html              # Landing page
 ├── login.html              # Login page
 ├── signup.html             # Sign up page
 ├── dashboard.html          # User dashboard
@@ -103,62 +102,6 @@ NeighborKnot/
 ├── public/                 # Static assets
 ├── assets/                 # Images and media
 └── README.md              # This file
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Firebase account (for production deployment)
-- Node.js (optional, for local development server)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/NeighborKnot.git
-   cd NeighborKnot
-   ```
-
-2. **Set up Firebase Configuration**
-   - Create a Firebase project at [firebase.google.com](https://firebase.google.com)
-   - Get your Firebase configuration
-   - Update `js/firebase-config.js`:
-   ```javascript
-   const firebaseConfig = {
-       apiKey: "YOUR_API_KEY",
-       authDomain: "YOUR_AUTH_DOMAIN",
-       projectId: "YOUR_PROJECT_ID",
-       storageBucket: "YOUR_STORAGE_BUCKET",
-       messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-       appId: "YOUR_APP_ID"
-   };
-   ```
-
-3. **Set up Firebase Authentication**
-   - Enable Email/Password authentication
-   - Configure Firestore Database
-   - Set up Security Rules
-
-### Running the Application
-
-#### Option 1: Using a Local Server
-```bash
-# Using Python 3
-python -m http.server 8000
-
-# Or using Node.js
-npx http-server
-```
-
-Then open `http://localhost:8000` in your browser.
-
-#### Option 2: Deploy to Firebase Hosting
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting
-firebase deploy
 ```
 
 ## 📖 Usage Guide
@@ -289,47 +232,17 @@ Contributions are welcome! Please follow these steps:
 5. Push to the branch (`git push origin feature/AmazingFeature`)
 6. Open a Pull Request
 
-## 📝 Future Enhancements
-
-- [ ] Video calling integration (Agora/Twilio)
-- [ ] Real-time notifications
-- [ ] Advanced profiles with certifications
-- [ ] Group sessions support
-- [ ] Mobile app (React Native)
-- [ ] Payment integration for token purchases
-- [ ] AI recommendation engine
-- [ ] Admin dashboard
-- [ ] Analytics and reporting
-- [ ] Accessibility improvements
-
-## 🐛 Known Issues
-
 - Demo uses localStorage (not persistent across browsers)
 - Video conferencing not yet implemented
 - Email notifications pending Firebase setup
 - Real-time messaging coming soon
 
-## 📄 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
-
 ## 👥 Team
 
-- **Kalana Neranjana** (A-0003) - Product Design & Strategy
-- **Ramuthu Theniya** (A-0006) - Development & Backend
-- **Thrilakshi** (B-0001) - UI/UX Design
+- **Kalana Neranjana**
+- **Ramuthu Theniya** 
+- **Thrilakshi** 
 
-## 📞 Support
-
-For support, email support@neighborknot.com or open an issue on GitHub.
-
-## 🙏 Acknowledgments
-
-- Firebase for backend services
-- Community feedback and testing
-- Open-source libraries and resources
-
----
 
 **Skills are a currency.** We believe in empowering communities through skill sharing. Join NeighborKnot today!
 

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AUTHENTICATION 3D GLASSMORPHISM
+   AUTHENTICATION PREMIUM GLASSMORPHISM
    ========================================================================== */
 
 .auth-container {
@@ -7,28 +7,36 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
-    /* Background handled by global style.css */
+    padding: 24px;
 }
 
 /* The Main 3D Glass Form Wrapper */
 .auth-form-wrapper {
-    background: rgba(30, 41, 59, 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: 1px solid rgba(255, 255, 255, 0.3); /* 3D highlight */
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-top: 1px solid var(--glass-border-light);
     border-radius: 24px;
-    padding: 40px;
+    padding: 48px;
     width: 100%;
-    max-width: 450px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    color: white;
+    max-width: 440px;
+    box-shadow: var(--glass-shadow);
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-form-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    opacity: 0.5;
 }
 
 .auth-form-wrapper.auth-form-large {
-    max-width: 550px;
+    max-width: 560px;
 }
 
 .auth-header {
@@ -37,40 +45,64 @@
 }
 
 .auth-header h1 {
-    font-size: 28px;
-    margin-bottom: 10px;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 32px;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .auth-header p {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 16px;
+    color: var(--text-secondary);
+    font-size: 15px;
 }
 
 /* Forms Content */
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
+    gap: 8px;
 }
 
 .form-group label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: white;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* Inputs styled in style.css globally for glass effect */
+input, textarea, select {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    background: rgba(15, 23, 42, 0.6) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+::placeholder {
+    color: var(--text-muted) !important;
+}
 
 .form-group small {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    margin-top: 4px;
+    color: var(--text-muted);
 }
 
 .form-row {
@@ -82,71 +114,94 @@
 /* Form Options & Checkboxes */
 .form-options, .checkbox-group {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.checkbox-group {
+    justify-content: flex-start;
 }
 
 .form-options label, .checkbox-group label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     cursor: pointer;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--text-secondary);
 }
 
 .form-options a, .checkbox-group a {
-    color: #60A5FA;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.form-options a:hover, .checkbox-group a:hover {
+    text-decoration: underline;
 }
 
 .btn-block {
     width: 100%;
     padding: 14px;
-    font-size: 16px;
-    margin-top: 10px;
+    font-size: 15px;
+    margin-top: 8px;
 }
 
 /* Auth Footer */
 .auth-footer {
     text-align: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--glass-border);
 }
 
 .auth-footer p {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
+    font-size: 14px;
 }
 
 .auth-footer a {
-    color: #60A5FA;
+    color: var(--primary-color);
     font-weight: 600;
+    margin-left: 4px;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
 }
 
 /* Notifications */
 .error-message, .success-message {
-    padding: 10px 12px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 12px;
     font-size: 14px;
     display: none;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
 }
 
 .error-message {
-    background: rgba(239, 68, 68, 0.2);
-    border-left: 4px solid #EF4444;
-    color: #FECACA;
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    color: #fca5a5;
 }
 
 .success-message {
-    background: rgba(16, 185, 129, 0.2);
-    border-left: 4px solid #10B981;
-    color: #A7F3D0;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
 }
 
 .error-message.show, .success-message.show {
     display: block;
+    animation: fadeIn 0.3s ease-out;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .auth-form-wrapper { padding: 30px 20px; }
-    .form-row { grid-template-columns: 1fr; }
+    .auth-form-wrapper { padding: 32px 24px; }
+    .form-row { grid-template-columns: 1fr; gap: 24px;}
 }

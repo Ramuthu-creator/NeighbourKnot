@@ -154,27 +154,80 @@ function debounce(func, delay) {
  * Show notification
  */
 function showNotification(message, type = 'info') {
+    // Remove existing notifications to avoid stacking too many
+    const existingNotifications = document.querySelectorAll('.custom-toast-notification');
+    existingNotifications.forEach(n => {
+        n.style.transform = 'translateY(-150%)';
+        n.style.opacity = '0';
+        setTimeout(() => n.remove(), 300);
+    });
+
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
+    notification.className = `custom-toast-notification toast-${type}`;
+    
+    // Select icon based on type
+    let iconSvg = '';
+    let bgColor = '';
+    
+    if (type === 'error') {
+        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+        bgColor = 'rgba(244, 63, 94, 0.95)'; // Rose/Red
+    } else if (type === 'success') {
+        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+        bgColor = 'rgba(16, 185, 129, 0.95)'; // Emerald/Green
+    } else {
+        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+        bgColor = 'rgba(14, 165, 233, 0.95)'; // Sky Blue
+    }
+
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; background: rgba(255,255,255,0.2); margin-right: 12px;">
+            ${iconSvg}
+        </div>
+        <div style="font-weight: 500; font-size: 15px; line-height: 1.4; letter-spacing: 0.3px;">
+            ${message}
+        </div>
+    `;
+
     notification.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 24px;
-        background: ${type === 'error' ? '#F43F5E' : type === 'success' ? '#10B981' : '#0EA5E9'};
+        top: 24px;
+        left: 50%;
+        display: flex;
+        align-items: center;
+        width: max-content;
+        max-width: 90vw;
+        padding: 14px 24px;
+        background: ${bgColor};
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         color: white;
-        border-radius: 8px;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        z-index: 9999;
-        animation: slideInUp 0.3s ease-out;
+        border-radius: 100px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        z-index: 99999;
+        transform: translate(-50%, -150%);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     `;
     
     document.body.appendChild(notification);
     
+    // Trigger reflow
+    notification.offsetHeight;
+    
+    // Slide in and fade in
+    notification.style.transform = 'translate(-50%, 0)';
+    notification.style.opacity = '1';
+    
     setTimeout(() => {
-        notification.remove();
-    }, 3000);
+        notification.style.transform = 'translate(-50%, -150%)';
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.remove();
+            }
+        }, 400);
+    }, 4500);
 }
 
 /**
