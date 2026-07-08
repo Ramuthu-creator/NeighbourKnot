@@ -136,23 +136,23 @@ class Explore {
                 <div class="details-section">
                     <h3>Details</h3>
                     <div class="details-schedule">
-                        <div class="schedule-item">📚 Level: ${skill.level}</div>
-                        <div class="schedule-item">🪙 Tokens per hour: ${skill.tokensPerHour}</div>
-                        <div class="schedule-item">👤 Students: ${Math.floor(Math.random() * 50)}</div>
+                        <div class="schedule-item">📚 Level: <span class="badge">${skill.level}</span></div>
+                        <div class="schedule-item">🪙 Cost: <span class="highlight">${skill.tokensPerHour} tokens/hr</span></div>
+                        <div class="schedule-item">👤 Students: ${Math.floor(Math.random() * 50) + 1}</div>
                     </div>
                 </div>
 
                 <div class="details-section">
                     <h3>About the Teacher</h3>
                     <p class="details-description">${teacher.bio || 'No bio available'}</p>
-                    <p class="details-description" style="margin-top: 8px; font-size: 13px; color: var(--text-light);">
-                        📍 ${teacher.location}
+                    <p class="details-location">
+                        📍 ${teacher.location || 'Location not specified'}
                     </p>
                 </div>
 
-                <div class="details-actions">
-                    <button class="book-session-btn" onclick="explore.bookSession('${skillId}', '${teacherId}')">Book Session</button>
-                    <button class="message-btn" onclick="explore.sendMessage('${teacherId}')">Send Message</button>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="explore.sendMessage('${teacherId}')">Message</button>
+                    <button type="button" class="btn btn-primary" onclick="explore.bookSession('${skillId}', '${teacherId}')">Book Session</button>
                 </div>
             </div>
         `;
@@ -200,8 +200,9 @@ class Explore {
      * Send message to teacher
      */
     sendMessage(teacherId) {
-        // TODO: Implement messaging feature
-        showNotification('Messaging feature coming soon!', 'info');
+        // Store intent in localStorage to be picked up by dashboard
+        localStorage.setItem('neighborknot_pending_chat', teacherId);
+        window.location.href = 'dashboard.html';
     }
 
     /**

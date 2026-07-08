@@ -73,7 +73,6 @@ class AuthManager {
                 bio: userData.bio || '',
                 profileImage: userData.profileImage || '',
                 location: userData.location || '',
-                year: userData.year || new Date().getFullYear(),
                 userType: userData.userType || 'learner',
                 skills: [],
                 tokens: 10, // Initial tokens
@@ -115,6 +114,60 @@ class AuthManager {
             return { success: true, user: this.currentUser };
         } catch (error) {
             console.error('Login error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Login or Signup with Google
+     */
+    async signInWithGoogle() {
+        try {
+            if (typeof auth === 'undefined') {
+                throw new Error('Firebase not initialized');
+            }
+
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const userCredential = await auth.signInWithPopup(provider);
+            const user = userCredential.user;
+            const uid = user.uid;
+
+            // Check if user exists in Firestore
+            const userDoc = await db.collection('users').doc(uid).get();
+            
+            if (!userDoc.exists) {
+                // This is a new user (Signup via Google)
+                const nameParts = (user.displayName || '').split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+                
+                const newUser = {
+                    email: user.email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    bio: '',
+                    profileImage: user.photoURL || '',
+                    location: '',
+                    userType: 'learner', // Default type
+                    skills: [],
+                    tokens: 10, // Initial tokens
+                    rating: 0,
+                    reviews: [],
+                    totalSessions: 0,
+                    createdAt: new Date().toISOString()
+                };
+
+                await db.collection('users').doc(uid).set(newUser);
+                this.currentUser = { id: uid, ...newUser };
+            } else {
+                // Existing user
+                this.currentUser = { id: uid, ...userDoc.data() };
+            }
+
+            localStorage.setItem('neighborknot_user', JSON.stringify(this.currentUser));
+            return { success: true, user: this.currentUser };
+        } catch (error) {
+            console.error('Google Sign-In error:', error);
             return { success: false, error: error.message };
         }
     }
@@ -432,6 +485,121 @@ class AuthManager {
     }
 
     /**
+     * Update booking status
+     * @param {string} bookingId - Booking ID
+     * @param {string} status - New status
+     */
+    async updateBookingStatus(bookingId, status) {
+        if (!this.currentUser) return { success: false, error: 'Not logged in' };
+        
+        try {
+            if (typeof db === 'undefined') return { success: false, error: 'Firebase not initialized' };
+            await db.collection('bookings').doc(bookingId).update({ status });
+            return { success: true };
+        } catch (error) {
+            console.error('Update booking error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Chat: Get or Create Chat
+     */
+    async getOrCreateChat(otherUserId) {
+        if (!this.currentUser) return { success: false, error: 'Not logged in' };
+        if (typeof db === 'undefined') return { success: false, error: 'Firebase not initialized' };
+
+        try {
+            const chatId = [this.currentUser.id, otherUserId].sort().join('_');
+            const chatRef = db.collection('chats').doc(chatId);
+            const chatDoc = await chatRef.get();
+
+            if (!chatDoc.exists) {
+                // Fetch other user for initial metadata if desired
+                await chatRef.set({
+                    participants: [this.currentUser.id, otherUserId],
+                    updatedAt: new Date().toISOString(),
+                    lastMessage: 'Say hi!'
+                });
+            }
+
+            return { success: true, chatId };
+        } catch (error) {
+            console.error('Get/Create Chat error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Chat: Send Message
+     */
+    async sendChatMessage(chatId, text) {
+        if (!this.currentUser || typeof db === 'undefined') return { success: false };
+
+        try {
+            const timestamp = new Date().toISOString();
+            const message = {
+                senderId: this.currentUser.id,
+                text: text,
+                timestamp: timestamp
+            };
+
+            await db.collection('chats').doc(chatId).collection('messages').add(message);
+            await db.collection('chats').doc(chatId).update({
+                lastMessage: text,
+                updatedAt: timestamp
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('Send message error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Chat: Subscribe to real-time messages
+     */
+    subscribeToMessages(chatId, callback) {
+        if (typeof db === 'undefined') return () => {};
+
+        return db.collection('chats').doc(chatId).collection('messages')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot(snapshot => {
+                const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                callback(messages);
+            }, error => {
+                console.error("Message subscription error:", error);
+            });
+    }
+
+    /**
+     * Chat: Get user's active chats
+     */
+    subscribeToUserChats(callback) {
+        if (!this.currentUser || typeof db === 'undefined') return () => {};
+
+        return db.collection('chats')
+            .where('participants', 'array-contains', this.currentUser.id)
+            .orderBy('updatedAt', 'desc')
+            .onSnapshot(async (snapshot) => {
+                const chats = [];
+                for (let doc of snapshot.docs) {
+                    const data = doc.data();
+                    const otherUserId = data.participants.find(id => id !== this.currentUser.id);
+                    const otherUser = await this.getUserById(otherUserId);
+                    chats.push({
+                        id: doc.id,
+                        ...data,
+                        otherUser: otherUser || { firstName: 'Unknown', lastName: 'User', profileImage: '' }
+                    });
+                }
+                callback(chats);
+            }, error => {
+                console.error("Chat subscription error:", error);
+            });
+    }
+
+    /**
      * Generate unique ID
      */
     generateId() {
@@ -458,6 +626,17 @@ class AuthManager {
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
+
+        // Google Auth buttons
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        if (googleLoginBtn) {
+            googleLoginBtn.addEventListener('click', (e) => this.handleGoogleSignIn(e));
+        }
+
+        const googleSignupBtn = document.getElementById('google-signup-btn');
+        if (googleSignupBtn) {
+            googleSignupBtn.addEventListener('click', (e) => this.handleGoogleSignIn(e));
         }
     }
 
@@ -492,7 +671,6 @@ class AuthManager {
             lastName: document.getElementById('lastName').value,
             location: document.getElementById('location').value,
             bio: document.getElementById('bio').value,
-            year: parseInt(document.getElementById('year').value),
             userType: document.getElementById('userType').value
         };
 
@@ -503,6 +681,24 @@ class AuthManager {
             // Clean up Firebase error message for display
             const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
             showNotification(friendlyError || 'Signup failed. Please try again.', 'error');
+        }
+    }
+
+    /**
+     * Handle Google Sign-in click
+     */
+    async handleGoogleSignIn(e) {
+        e.preventDefault();
+        const result = await this.signInWithGoogle();
+        if (result.success) {
+            window.location.href = 'dashboard.html';
+        } else {
+            const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
+            if (typeof showNotification === 'function') {
+                showNotification(friendlyError || 'Google authentication failed.', 'error');
+            } else {
+                alert(friendlyError || 'Google authentication failed.');
+            }
         }
     }
 

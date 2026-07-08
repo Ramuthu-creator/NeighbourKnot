@@ -3,6 +3,8 @@ class Dashboard {
     constructor() {
         requireAuth();
         this.user = getCurrentUser();
+        this.activeChatId = null;
+        this.chatUnsubscribe = null;
         this.init();
     }
 
@@ -12,6 +14,22 @@ class Dashboard {
         this.renderStats();
         this.renderSkills();
         await this.renderBookings();
+        this.initMessaging();
+        this.checkPendingChats();
+    }
+
+    /**
+     * Check for pending chats from other pages (like Explore)
+     */
+    checkPendingChats() {
+        const pendingTeacherId = localStorage.getItem('neighborknot_pending_chat');
+        if (pendingTeacherId) {
+            localStorage.removeItem('neighborknot_pending_chat');
+            // Give Firebase a moment to load
+            setTimeout(() => {
+                this.startNewChat(pendingTeacherId);
+            }, 500);
+        }
     }
 
     /**
@@ -81,9 +99,8 @@ class Dashboard {
         const result = await authManager.getUserBookings(this.user.id);
         const bookings = result.success ? result.bookings : [];
 
-        const now = new Date();
-        const upcoming = bookings.filter(b => new Date(b.date) >= now);
-        const past = bookings.filter(b => new Date(b.date) < now);
+        const upcoming = bookings.filter(b => b.status === 'confirmed' || !b.status);
+        const past = bookings.filter(b => b.status === 'completed');
 
         const renderBookingCards = (bookingList) => {
             if (bookingList.length === 0) {
@@ -103,7 +120,14 @@ class Dashboard {
                         <span class="booking-status" style="display:inline-block; margin-top:8px; padding:4px 8px; background:rgba(16,185,129,0.1); color:#10b981; border-radius:4px; font-size:12px;">${booking.status}</span>
                     </div>
                     <div class="booking-actions" style="display:flex; flex-direction:column; gap:8px;">
-                        <button class="btn btn-primary" onclick="dashboard.startSession('${booking.id}')">Start</button>
+                        ${(booking.status === 'confirmed' || !booking.status) ? `
+                            <button class="btn btn-primary" onclick="dashboard.startSession('${booking.id}')">Start</button>
+                            <button class="btn btn-secondary" onclick="dashboard.startNewChat('${booking.learnerId === this.user.id ? booking.teacherId : booking.learnerId}')">Message</button>
+                            <button class="btn btn-secondary" onclick="dashboard.completeSession('${booking.id}')">Complete Session</button>
+                        ` : `
+                            <button class="btn btn-secondary" onclick="dashboard.startNewChat('${booking.learnerId === this.user.id ? booking.teacherId : booking.learnerId}')">Message</button>
+                            <button class="btn btn-secondary" disabled>Completed</button>
+                        `}
                     </div>
                 </div>
             `).join('');
@@ -164,6 +188,12 @@ class Dashboard {
                 this.closeModal();
             }
         });
+
+        // Chat Form
+        const chatForm = document.getElementById('chat-form');
+        if (chatForm) {
+            chatForm.addEventListener('submit', (e) => this.handleSendMessage(e));
+        }
     }
 
     /**
@@ -272,11 +302,29 @@ class Dashboard {
     }
 
     /**
-     * Start session
+     * Complete session
+     */
+    async completeSession(bookingId) {
+        if (confirm('Are you sure you want to mark this session as completed?')) {
+            const result = await authManager.updateBookingStatus(bookingId, 'completed');
+            if (result.success) {
+                showNotification('Session marked as completed!', 'success');
+                this.renderBookings();
+                this.renderStats();
+            } else {
+                showNotification(result.error, 'error');
+            }
+        }
+    }
+
+    /**
+     * Start session (Live Video Call)
      */
     startSession(bookingId) {
-        // TODO: Implement video call or session start
-        showNotification('Starting session...', 'info');
+        // Automatically create a secure, unique video room for this exact booking using Jitsi Meet
+        const meetingUrl = `https://meet.jit.si/NeighborKnot_${bookingId}`;
+        window.open(meetingUrl, '_blank');
+        showNotification('Joining live session room...', 'success');
     }
 
     /**
@@ -285,6 +333,115 @@ class Dashboard {
     rescheduleBooking(bookingId) {
         // TODO: Implement reschedule modal
         showNotification('Reschedule feature coming soon!', 'info');
+    }
+
+    // ==========================================
+    // Messaging Logic
+    // ==========================================
+
+    initMessaging() {
+        authManager.subscribeToUserChats((chats) => {
+            this.renderConversations(chats);
+        });
+    }
+
+    renderConversations(chats) {
+        const list = document.getElementById('conversations-list');
+        if (!list) return;
+
+        if (chats.length === 0) {
+            list.innerHTML = '<p class="empty-state">No conversations yet</p>';
+            return;
+        }
+
+        list.innerHTML = chats.map(chat => `
+            <div class="conversation-item ${this.activeChatId === chat.id ? 'active' : ''}" onclick="dashboard.openChat('${chat.id}', '${chat.otherUser.firstName}', '${chat.otherUser.lastName}')">
+                <div class="user-avatar" style="width: 40px; height: 40px; font-size: 14px;">
+                    ${getInitials(chat.otherUser.firstName, chat.otherUser.lastName)}
+                </div>
+                <div class="conversation-info">
+                    <h4>${chat.otherUser.firstName} ${chat.otherUser.lastName}</h4>
+                    <p>${chat.lastMessage || 'Start chatting!'}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async openChat(chatId, firstName, lastName) {
+        this.activeChatId = chatId;
+        
+        // Update UI
+        document.getElementById('chat-header').style.display = 'flex';
+        document.getElementById('chat-input-area').style.display = 'block';
+        document.getElementById('chat-header-name').textContent = `${firstName} ${lastName}`;
+        document.getElementById('chat-header-avatar').textContent = getInitials(firstName, lastName);
+        
+        // Highlight active conversation
+        document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+        const activeItem = Array.from(document.querySelectorAll('.conversation-item')).find(item => item.innerHTML.includes(firstName));
+        if (activeItem) activeItem.classList.add('active');
+
+        // Unsubscribe from previous chat
+        if (this.chatUnsubscribe) {
+            this.chatUnsubscribe();
+        }
+
+        // Subscribe to new chat messages
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;">Loading messages...</div>';
+
+        this.chatUnsubscribe = authManager.subscribeToMessages(chatId, (messages) => {
+            if (messages.length === 0) {
+                chatMessages.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--text-muted);">Say hello!</div>';
+                return;
+            }
+
+            chatMessages.innerHTML = messages.map(msg => {
+                const isSentByMe = msg.senderId === this.user.id;
+                const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="chat-bubble ${isSentByMe ? 'sent' : 'received'}">
+                        <div>${msg.text}</div>
+                        <div class="chat-time">${timeStr}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    }
+
+    async handleSendMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        
+        if (!text || !this.activeChatId) return;
+        
+        // Optimistic clear
+        input.value = '';
+        
+        const result = await authManager.sendChatMessage(this.activeChatId, text);
+        if (!result.success) {
+            showNotification('Failed to send message', 'error');
+        }
+    }
+
+    /**
+     * Start chat from booking or explore
+     */
+    async startNewChat(otherUserId) {
+        const result = await authManager.getOrCreateChat(otherUserId);
+        if (result.success) {
+            this.switchSection('messages');
+            const otherUser = await authManager.getUserById(otherUserId);
+            if (otherUser) {
+                this.openChat(result.chatId, otherUser.firstName, otherUser.lastName);
+            }
+        } else {
+            showNotification('Could not start chat', 'error');
+        }
     }
 }
 
