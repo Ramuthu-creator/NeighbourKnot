@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
-<body>
+<body class="dashboard-body">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container navbar-content">
@@ -23,7 +23,7 @@
         </div>
     </nav>
 
-    <div class="container dashboard-container">
+    <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-user">
@@ -172,9 +172,37 @@
                     <h2>Messages</h2>
                 </div>
 
-                <div class="messages-container">
-                    <div id="conversations-list" class="conversations-list">
-                        <p class="empty-state">No conversations yet</p>
+                <div class="messages-container" style="display: flex; height: 600px; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden;">
+                    <!-- Left Pane: Conversations List -->
+                    <div id="conversations-sidebar" style="width: 300px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column;">
+                        <div style="padding: 16px; border-bottom: 1px solid var(--glass-border); font-weight: 600;">Conversations</div>
+                        <div id="conversations-list" style="flex: 1; overflow-y: auto;">
+                            <p class="empty-state">No conversations yet</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Pane: Active Chat -->
+                    <div id="active-chat-window" style="flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.2);">
+                        <!-- Chat Header -->
+                        <div id="chat-header" style="padding: 16px; border-bottom: 1px solid var(--glass-border); display: none; align-items: center; gap: 12px;">
+                            <div id="chat-header-avatar" class="user-avatar" style="width: 40px; height: 40px; font-size: 16px;">U</div>
+                            <h3 id="chat-header-name" style="margin: 0; font-size: 16px;">User Name</h3>
+                        </div>
+                        
+                        <!-- Chat Messages -->
+                        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; height: 100%; align-items: center; justify-content: center; color: var(--text-muted);">
+                                Select a conversation to start chatting
+                            </div>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div id="chat-input-area" style="padding: 16px; border-top: 1px solid var(--glass-border); display: none;">
+                            <form id="chat-form" style="display: flex; gap: 12px;">
+                                <input type="text" id="chat-input" placeholder="Type a message..." required style="flex: 1;">
+                                <button type="submit" class="btn btn-primary" style="padding: 0 24px;">Send</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -235,12 +263,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 NeighborKnot. All rights reserved.</p>
-        </div>
-    </footer>
+
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>

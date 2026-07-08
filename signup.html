@@ -48,10 +48,6 @@
                     <textarea id="bio" name="bio" rows="3" placeholder="Tell us about yourself"></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="year">Year</label>
-                    <input type="number" id="year" name="year" min="2000" max="2099" placeholder="2024">
-                </div>
 
                 <div class="form-group">
                     <label for="userType">I am a:</label>
@@ -71,6 +67,15 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+                
+                <button type="button" class="btn btn-google btn-block" id="google-signup-btn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="google-icon">
+                    Sign up with Google
+                </button>
             </form>
 
             <div class="auth-footer">

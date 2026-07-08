@@ -2,12 +2,21 @@
    EXPLORE PAGE PREMIUM GLASSMORPHISM
    ========================================================================== */
 
+body.explore-body {
+    overflow: hidden;
+}
+
+body.explore-body .footer {
+    display: none;
+}
+
 .explore-container {
     display: grid;
     grid-template-columns: 280px 1fr;
     gap: 32px;
-    padding: 32px 0;
-    min-height: calc(100vh - 80px);
+    padding: 24px;
+    height: calc(100vh - 74px);
+    overflow: hidden;
 }
 
 /* 3D Glass Sidebar Filter */
@@ -18,9 +27,9 @@
     border: 1px solid var(--glass-border);
     border-radius: 24px;
     padding: 24px;
-    height: fit-content;
-    position: sticky;
-    top: 100px;
+    height: 100%;
+    position: relative;
+    overflow-y: auto;
     box-shadow: var(--glass-shadow);
     color: var(--text-primary);
 }
@@ -59,6 +68,23 @@
 }
 
 /* Header & Sort Bar */
+.explore-sidebar::-webkit-scrollbar { width: 4px; }
+.explore-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.explore-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 16px;
+}
+
+.explore-content::-webkit-scrollbar { width: 6px; }
+.explore-content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
+.explore-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+.explore-content::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* Header & Sort Bar */
 .explore-header h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px;}
 .explore-header p { color: var(--text-secondary); margin-bottom: 24px; }
 
@@ -85,7 +111,7 @@
 /* 3D Glass Skill Grid Cards */
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
     gap: 24px;
 }
 
@@ -178,12 +204,115 @@
     filter: brightness(1.1);
 }
 
+/* Skill Details Modal Styling */
+.details-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.details-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.details-info h2 {
+    font-size: 24px;
+    margin: 0 0 4px 0;
+    color: var(--text-primary);
+}
+
+.details-teacher {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.details-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.details-section {
+    margin-bottom: 24px;
+}
+
+.details-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.details-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.details-schedule {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: rgba(15, 23, 42, 0.4);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.highlight {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.details-location {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 @media (max-width: 992px) {
     .explore-container { grid-template-columns: 240px 1fr; }
 }
 
 @media (max-width: 768px) {
-    .explore-container { grid-template-columns: 1fr; gap: 24px; padding: 24px 0;}
-    .explore-sidebar { position: relative; top: 0; }
+    body.explore-body { overflow: auto; }
+    body.explore-body .footer { display: block; }
+    .explore-container { grid-template-columns: 1fr; gap: 24px; padding: 24px; height: auto; overflow: visible; }
+    .explore-sidebar { position: relative; top: 0; height: auto; overflow: visible; margin-bottom: 24px; }
+    .explore-content { height: auto; overflow-y: visible; padding-right: 0; }
     .sort-bar { flex-direction: column; align-items: stretch; }
 }
