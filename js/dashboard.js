@@ -5,6 +5,7 @@ class Dashboard {
         this.user = getCurrentUser();
         this.activeChatId = null;
         this.chatUnsubscribe = null;
+        this.editingSkillId = null;
         this.init();
     }
 
@@ -241,6 +242,9 @@ class Dashboard {
     closeModal() {
         document.getElementById('add-skill-modal').classList.remove('show');
         document.getElementById('add-skill-form').reset();
+        this.editingSkillId = null;
+        const modalTitle = document.querySelector('#add-skill-modal .modal-header h2');
+        if (modalTitle) modalTitle.textContent = 'Add New Skill';
     }
 
     /**
@@ -256,10 +260,15 @@ class Dashboard {
             tokensPerHour: parseInt(document.getElementById('tokens-per-hour').value)
         };
 
-        const result = await authManager.addSkill(skill);
+        let result;
+        if (this.editingSkillId) {
+            result = await authManager.updateSkill(this.editingSkillId, skill);
+        } else {
+            result = await authManager.addSkill(skill);
+        }
         
         if (result.success) {
-            showNotification('Skill added successfully!', 'success');
+            showNotification(this.editingSkillId ? 'Skill updated successfully!' : 'Skill added successfully!', 'success');
             this.closeModal();
             this.renderSkills();
             this.renderStats();
@@ -280,7 +289,9 @@ class Dashboard {
             document.getElementById('skill-level').value = skill.level;
             document.getElementById('tokens-per-hour').value = skill.tokensPerHour;
             
-            // TODO: Update form submission to handle edit instead of add
+            this.editingSkillId = skillId;
+            const modalTitle = document.querySelector('#add-skill-modal .modal-header h2');
+            if (modalTitle) modalTitle.textContent = 'Edit Skill';
             this.openAddSkillModal();
         }
     }
