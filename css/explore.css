@@ -316,3 +316,8 @@ body.explore-body .footer {
     .explore-content { height: auto; overflow-y: visible; padding-right: 0; }
     .sort-bar { flex-direction: column; align-items: stretch; }
 }
+
+@media (max-width: 480px) {
+    .explore-container { padding: 12px; }
+    .details-schedule { grid-template-columns: 1fr; }
+}

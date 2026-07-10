@@ -138,3 +138,18 @@
     .profile-stats { justify-content: center; }
     .profile-location { justify-content: center; }
 }
+
+@media (max-width: 768px) {
+    .profile-cover { height: 160px; margin-bottom: -50px; }
+    .profile-avatar { width: 100px; height: 100px; font-size: 24px; }
+    .profile-info { padding: 50px 16px 16px; }
+    .profile-details h1 { font-size: 24px; }
+    .profile-stats { gap: 16px; flex-wrap: wrap; }
+    .stat-number { font-size: 18px; }
+    .profile-section, .sidebar-card { padding: 20px; }
+}
+
+@media (max-width: 480px) {
+    .profile-stats { flex-direction: column; gap: 12px; }
+    .skill-showcase-card, .review-showcase-card { padding: 12px; }
+}
