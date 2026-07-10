@@ -87,10 +87,11 @@
             letter-spacing: -0.5px;
         }
         .super-nav .logo-knot {
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
+    background: linear-gradient(to right, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    background-clip: text; /* new one  */
+    color: transparent;
+}
 
         .super-nav .nav-buttons {
             display: flex;
@@ -159,11 +160,12 @@
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
-            -webkit-background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text; /* new one  */
+    color: transparent;
+    display: inline-block;
+}
 
         .hero-desc {
             font-size: 20px;

@@ -154,10 +154,21 @@ class Explore {
                     <button type="button" class="btn btn-secondary" onclick="explore.sendMessage('${teacherId}')">Message</button>
                     <button type="button" class="btn btn-primary" onclick="explore.bookSession('${skillId}', '${teacherId}')">Book Session</button>
                 </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="explore.closeSkillModal()"><i class="fa-solid fa-arrow-left"></i> Back to Explore</button>
+                </div>
             </div>
         `;
 
         document.getElementById('skill-modal').classList.add('show');
+    }
+
+    /**
+     * Close skill details modal
+     */
+    closeSkillModal() {
+        document.getElementById('skill-modal').classList.remove('show');
     }
 
     /**
@@ -211,12 +222,12 @@ class Explore {
     setupEventListeners() {
         // Close modal
         document.querySelector('.modal-close').addEventListener('click', () => {
-            document.getElementById('skill-modal').classList.remove('show');
+            this.closeSkillModal();
         });
 
         document.getElementById('skill-modal').addEventListener('click', (e) => {
             if (e.target.id === 'skill-modal') {
-                document.getElementById('skill-modal').classList.remove('show');
+                this.closeSkillModal();
             }
         });
 

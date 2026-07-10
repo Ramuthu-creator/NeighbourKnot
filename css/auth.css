@@ -10,6 +10,13 @@
     padding: 24px;
 }
 
+.auth-home-btn {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    z-index: 50;
+}
+
 /* The Main 3D Glass Form Wrapper */
 .auth-form-wrapper {
     background: var(--glass-bg);
