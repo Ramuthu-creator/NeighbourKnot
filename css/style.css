@@ -364,6 +364,12 @@ input:focus, textarea:focus, select:focus {
     gap: 20px;
 }
 
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* 3D Glass Modals */
 .modal {
     display: none;

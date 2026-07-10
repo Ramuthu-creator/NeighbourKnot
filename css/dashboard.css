@@ -364,6 +364,8 @@ body.dashboard-body .footer {
 @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
     .tabs { flex-wrap: wrap; gap: 16px; }
+    .stat-card, .quick-actions, .recent-activity, .skill-card, .booking-card, .review-card { padding: 16px; }
+    .dashboard-container { padding: 12px; }
 }
 
 /* Chat UI Styling */
