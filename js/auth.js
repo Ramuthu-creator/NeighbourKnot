@@ -243,6 +243,30 @@ class AuthManager {
     }
 
     /**
+     * Update skill for user
+     * @param {string} skillId - Skill ID
+     * @param {Object} updatedData - Updated skill data
+     */
+    async updateSkill(skillId, updatedData) {
+        if (!this.currentUser) {
+            return { success: false, error: 'No user logged in' };
+        }
+
+        try {
+            const updatedSkills = this.currentUser.skills.map(s => {
+                if (s.id === skillId) {
+                    return { ...s, ...updatedData };
+                }
+                return s;
+            });
+            return await this.updateProfile({ skills: updatedSkills });
+        } catch (error) {
+            console.error('Update skill error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
      * Remove skill from user
      * @param {string} skillId - Skill ID
      */
