@@ -34,6 +34,7 @@ class Explore {
             }
         });
 
+        this.allSkills = allSkills;
         this.filteredSkills = allSkills;
         this.renderSkills(allSkills);
     }
@@ -45,10 +46,12 @@ class Explore {
         const skillsGrid = document.getElementById('skills-grid');
 
         if (skills.length === 0) {
+            const searchTerm = document.getElementById('search-input').value;
+            const heading = searchTerm ? `No results found for "${searchTerm}"` : `No skills found`;
             skillsGrid.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">🔍</div>
-                    <h3>No skills found</h3>
+                    <h3>${heading}</h3>
                     <p>Try adjusting your filters</p>
                 </div>
             `;
@@ -244,9 +247,22 @@ class Explore {
         });
 
         // Search input
-        document.getElementById('search-input').addEventListener('input', debounce(() => {
+        const searchInput = document.getElementById('search-input');
+        const clearSearch = document.getElementById('clear-search');
+
+        searchInput.addEventListener('input', (e) => {
+            clearSearch.style.display = e.target.value.trim() !== '' ? 'block' : 'none';
+        });
+
+        searchInput.addEventListener('input', debounce(() => {
             this.applyFilters();
         }, 300));
+
+        clearSearch.addEventListener('click', () => {
+            searchInput.value = '';
+            clearSearch.style.display = 'none';
+            this.applyFilters();
+        });
     }
 
     /**
@@ -254,18 +270,21 @@ class Explore {
      */
     applyFilters() {
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const selectedCategory = document.getElementById('category-filter').value;
         const selectedLevels = Array.from(document.querySelectorAll('input[name="level"]:checked')).map(el => el.value);
         const maxTokens = parseInt(document.getElementById('tokens-range').value);
         const minRating = parseFloat(document.querySelector('input[name="rating"]:checked').value || 0);
 
-        let filtered = this.filteredSkills.filter(skill => {
+        let filtered = (this.allSkills || []).filter(skill => {
             const matchesSearch = skill.name.toLowerCase().includes(searchTerm) ||
-                                skill.description.toLowerCase().includes(searchTerm);
+                                skill.description.toLowerCase().includes(searchTerm) ||
+                                (skill.teacherName && skill.teacherName.toLowerCase().includes(searchTerm));
+            const matchesCategory = !selectedCategory || skill.category === selectedCategory;
             const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(skill.level);
             const matchesTokens = skill.tokensPerHour <= maxTokens;
             const matchesRating = skill.teacherRating >= minRating;
 
-            return matchesSearch && matchesLevel && matchesTokens && matchesRating;
+            return matchesSearch && matchesCategory && matchesLevel && matchesTokens && matchesRating;
         });
 
         this.filteredSkills = filtered;
@@ -277,6 +296,8 @@ class Explore {
      */
     resetFilters() {
         document.getElementById('search-input').value = '';
+        document.getElementById('clear-search').style.display = 'none';
+        document.getElementById('category-filter').value = '';
         document.getElementById('tokens-range').value = 50;
         document.getElementById('tokens-display').textContent = 'Up to 50 tokens';
         document.querySelectorAll('input[name="level"]').forEach(el => el.checked = false);
