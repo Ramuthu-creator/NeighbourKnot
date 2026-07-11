@@ -7,7 +7,7 @@ body.dashboard-body {
 }
 
 html, body {
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
 }
 
@@ -353,16 +353,16 @@ body.dashboard-body .footer {
 @media (max-width: 768px) {
     body.dashboard-body { overflow-x: hidden; overflow-y: auto; }
     body.dashboard-body .footer { display: block; }
-    .dashboard-container { grid-template-columns: 1fr; gap: 16px; padding: 16px; height: auto; overflow: visible; }
-    .sidebar { position: relative; top: 0; margin-bottom: 16px; height: auto; padding: 20px; }
-    .dashboard-content { height: auto; overflow-y: visible; padding-right: 0; }
+    .dashboard-container { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 16px; height: auto; overflow: visible; max-width: 100%; box-sizing: border-box; }
+    .sidebar { position: relative; top: 0; margin-bottom: 16px; height: auto; padding: 20px; width: 100%; box-sizing: border-box; }
+    .dashboard-content { height: auto; overflow-y: visible; padding-right: 0; width: 100%; box-sizing: border-box; overflow: hidden; }
     .sidebar-user { flex-direction: row; text-align: left; justify-content: flex-start; gap: 16px; }
-    .sidebar-menu { flex-direction: row; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
+    .sidebar-menu { flex-direction: row; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; -webkit-overflow-scrolling: touch; width: 100%; }
     .sidebar-menu::-webkit-scrollbar { height: 4px; display: none; } /* Hide scrollbar for cleaner look on mobile */
     .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
     .menu-item { white-space: nowrap; flex-shrink: 0; }
     .menu-item.active { border-left: none; border-bottom: 3px solid var(--primary-color); border-radius: 8px 8px 0 0; }
-    .messages-container { grid-template-columns: 1fr; min-height: 400px; display: flex !important; flex-direction: column; }
+    .messages-container { grid-template-columns: 1fr; min-height: 400px; display: flex !important; flex-direction: column; width: 100%; }
     .conversations-list { border-right: none; border-bottom: 1px solid var(--glass-border); max-height: 200px; }
 }
 
