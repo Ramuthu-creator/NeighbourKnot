@@ -228,6 +228,7 @@ class AuthManager {
                 id: this.generateId(),
                 name: skill.name,
                 description: skill.description,
+                category: skill.category || 'other',
                 level: skill.level || 'Intermediate',
                 tokensPerHour: skill.tokensPerHour || 5,
                 availability: skill.availability || [],

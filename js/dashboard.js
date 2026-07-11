@@ -256,6 +256,7 @@ class Dashboard {
         const skill = {
             name: document.getElementById('skill-name').value,
             description: document.getElementById('skill-description').value,
+            category: document.getElementById('skill-category').value,
             level: document.getElementById('skill-level').value,
             tokensPerHour: parseInt(document.getElementById('tokens-per-hour').value)
         };
@@ -286,6 +287,7 @@ class Dashboard {
             // Fill form with skill data
             document.getElementById('skill-name').value = skill.name;
             document.getElementById('skill-description').value = skill.description;
+            document.getElementById('skill-category').value = skill.category || '';
             document.getElementById('skill-level').value = skill.level;
             document.getElementById('tokens-per-hour').value = skill.tokensPerHour;
             
