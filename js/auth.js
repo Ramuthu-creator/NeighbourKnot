@@ -584,7 +584,11 @@ class AuthManager {
                 await chatRef.set({
                     participants: [this.currentUser.id, otherUserId],
                     updatedAt: new Date().toISOString(),
-                    lastMessage: 'Say hi!'
+                    lastMessage: 'Say hi!',
+                    unreadCounts: {
+                        [this.currentUser.id]: 0,
+                        [otherUserId]: 0
+                    }
                 });
             }
 
@@ -610,13 +614,38 @@ class AuthManager {
             };
 
             await db.collection('chats').doc(chatId).collection('messages').add(message);
+            
+            // Get the chat doc to find the other participant
+            const chatDoc = await db.collection('chats').doc(chatId).get();
+            const chatData = chatDoc.data();
+            const otherUserId = chatData.participants.find(id => id !== this.currentUser.id);
+            const currentUnread = chatData.unreadCounts && chatData.unreadCounts[otherUserId] ? chatData.unreadCounts[otherUserId] : 0;
+            
             await db.collection('chats').doc(chatId).update({
                 lastMessage: text,
-                updatedAt: timestamp
+                updatedAt: timestamp,
+                [`unreadCounts.${otherUserId}`]: currentUnread + 1
             });
             return { success: true };
         } catch (error) {
             console.error('Send message error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Chat: Mark as read
+     */
+    async markChatAsRead(chatId) {
+        if (!this.currentUser || typeof db === 'undefined') return { success: false };
+
+        try {
+            await db.collection('chats').doc(chatId).update({
+                [`unreadCounts.${this.currentUser.id}`]: 0
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('Mark as read error:', error);
             return { success: false, error: error.message };
         }
     }
