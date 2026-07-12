@@ -202,7 +202,7 @@ class Explore {
 
         const bookingResult = await authManager.createBooking(bookingData);
         if (bookingResult.success) {
-            this.currentUser.tokens -= skill.tokensPerHour;
+            this.currentUser = getCurrentUser();
             showNotification('Successfully booked session for ' + skill.name + '!', 'success');
             document.getElementById('skill-modal').classList.remove('show');
         } else {
