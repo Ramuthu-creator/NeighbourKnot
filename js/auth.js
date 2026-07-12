@@ -395,6 +395,14 @@ class AuthManager {
                 rating: finalRating
             });
 
+            // Update cache so subsequent fetches get the new rating
+            if (this.userCache.has(targetUserId)) {
+                const cachedUser = this.userCache.get(targetUserId);
+                cachedUser.reviews = reviews;
+                cachedUser.rating = finalRating;
+                this.userCache.set(targetUserId, cachedUser);
+            }
+
             // Update booking to mark it as reviewed
             const reviewField = isLearnerReviewing ? 'reviewedByLearner' : 'reviewedByTeacher';
             await db.collection('bookings').doc(bookingId).update({
