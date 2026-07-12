@@ -2,6 +2,7 @@
 class AuthManager {
     constructor() {
         this.currentUser = null;
+        this.userCache = new Map();
         this.init();
     }
 
@@ -306,12 +307,20 @@ class AuthManager {
      * @param {string} userId - User ID
      */
     async getUserById(userId) {
+        if (this.userCache.has(userId)) {
+            return this.userCache.get(userId);
+        }
         try {
             if (typeof db === 'undefined') {
                 return null;
             }
             const userDoc = await db.collection('users').doc(userId).get();
-            return userDoc.exists ? { id: userId, ...userDoc.data() } : null;
+            if (userDoc.exists) {
+                const userData = { id: userId, ...userDoc.data() };
+                this.userCache.set(userId, userData);
+                return userData;
+            }
+            return null;
         } catch (error) {
             console.error('Get user by ID error:', error);
             return null;
@@ -512,8 +521,8 @@ class AuthManager {
             // Combine and sort by date descending
             const allBookings = [...learnerBookings, ...teacherBookings].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Fetch names for UI display
-            for (let booking of allBookings) {
+            // Fetch names for UI display concurrently
+            await Promise.all(allBookings.map(async (booking) => {
                 if (booking.learnerId === userId) {
                     const teacher = await this.getUserById(booking.teacherId);
                     booking.displayName = teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown Teacher';
@@ -523,7 +532,7 @@ class AuthManager {
                     booking.displayName = learner ? `${learner.firstName} ${learner.lastName}` : 'Unknown Learner';
                     booking.role = 'Teacher';
                 }
-            }
+            }));
 
             return { success: true, bookings: allBookings };
         } catch (error) {
@@ -630,17 +639,16 @@ class AuthManager {
         return db.collection('chats')
             .where('participants', 'array-contains', user.id)
             .onSnapshot(async (snapshot) => {
-                const chats = [];
-                for (let doc of snapshot.docs) {
+                const chats = await Promise.all(snapshot.docs.map(async (doc) => {
                     const data = doc.data();
                     const otherUserId = data.participants.find(id => id !== user.id);
                     const otherUser = await this.getUserById(otherUserId);
-                    chats.push({
+                    return {
                         id: doc.id,
                         ...data,
                         otherUser: otherUser || { firstName: 'Unknown', lastName: 'User', profileImage: '' }
-                    });
-                }
+                    };
+                }));
                 // Sort chats by updatedAt descending
                 chats.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
                 callback(chats);
