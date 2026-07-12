@@ -15,6 +15,7 @@ class Dashboard {
         this.renderStats();
         this.renderSkills();
         await this.renderBookings();
+        await this.renderReviews();
         this.initMessaging();
         this.checkPendingChats();
     }
@@ -145,6 +146,48 @@ class Dashboard {
 
         upcomingBookings.innerHTML = renderBookingCards(upcoming);
         pastBookings.innerHTML = renderBookingCards(past);
+    }
+
+    /**
+     * Render user reviews
+     */
+    async renderReviews() {
+        const reviewsList = document.getElementById('reviews-list');
+        if (!reviewsList) return;
+
+        const reviews = this.user.reviews || [];
+        
+        if (reviews.length === 0) {
+            reviewsList.innerHTML = '<p class="empty-state">No reviews yet. Complete sessions to get reviews!</p>';
+            return;
+        }
+
+        // Fetch reviewer names concurrently
+        const reviewsWithReviewers = await Promise.all(reviews.map(async (review) => {
+            const reviewer = await authManager.getUserById(review.reviewerId);
+            return {
+                ...review,
+                reviewerName: reviewer ? `${reviewer.firstName} ${reviewer.lastName}` : 'Unknown User'
+            };
+        }));
+
+        // Sort by date descending
+        reviewsWithReviewers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        reviewsList.innerHTML = reviewsWithReviewers.map(review => `
+            <div class="review-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <div>
+                        <strong style="color: var(--text-primary); font-size: 16px;">${review.reviewerName}</strong>
+                        <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">${new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    </div>
+                    <div style="color: #fbbf24; font-size: 16px; letter-spacing: 2px;">
+                        ${'★'.repeat(review.rating)}${'<span style="color: var(--glass-border)">★</span>'.repeat(5 - review.rating)}
+                    </div>
+                </div>
+                <p style="color: var(--text-secondary); margin: 8px 0 0; line-height: 1.5; font-size: 14px;">${review.comment}</p>
+            </div>
+        `).join('');
     }
 
     /**
@@ -456,10 +499,12 @@ class Dashboard {
     }
 
     renderConversations(chats) {
+        const unreadChatsCount = chats.filter(c => c.unreadCounts && c.unreadCounts[this.user.id] > 0).length;
+        
         const badge = document.getElementById('message-badge');
         if (badge) {
-            badge.textContent = chats.length;
-            badge.style.display = chats.length > 0 ? 'inline-block' : 'none';
+            badge.textContent = unreadChatsCount;
+            badge.style.display = unreadChatsCount > 0 ? 'inline-block' : 'none';
         }
 
         const list = document.getElementById('conversations-list');
@@ -477,17 +522,23 @@ class Dashboard {
 
         list.innerHTML = chats.map(chat => {
             const timeStr = chat.updatedAt ? new Date(chat.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+            const unreadCount = chat.unreadCounts && chat.unreadCounts[this.user.id] ? chat.unreadCounts[this.user.id] : 0;
+            const isUnread = unreadCount > 0;
+            
             return `
-            <div class="conversation-item ${this.activeChatId === chat.id ? 'active' : ''}" onclick="dashboard.openChat('${chat.id}', '${chat.otherUser.firstName}', '${chat.otherUser.lastName}')" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--glass-border); cursor: pointer; transition: background 0.2s ease;">
-                <div class="user-avatar" style="width: 44px; height: 44px; font-size: 16px; flex-shrink: 0;">
+            <div class="conversation-item ${this.activeChatId === chat.id ? 'active' : ''}" onclick="dashboard.openChat('${chat.id}', '${chat.otherUser.firstName}', '${chat.otherUser.lastName}')" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--glass-border); cursor: pointer; transition: background 0.2s ease; ${isUnread ? 'background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--primary-color);' : ''}">
+                <div class="user-avatar" style="width: 44px; height: 44px; font-size: 16px; flex-shrink: 0; ${isUnread ? 'border: 2px solid var(--primary-color);' : ''}">
                     ${getInitials(chat.otherUser.firstName, chat.otherUser.lastName)}
                 </div>
                 <div class="conversation-info" style="flex: 1; min-width: 0;">
                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
-                        <h4 style="margin: 0; font-size: 15px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chat.otherUser.firstName} ${chat.otherUser.lastName}</h4>
-                        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px; flex-shrink: 0;">${timeStr}</span>
+                        <h4 style="margin: 0; font-size: 15px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${isUnread ? 'font-weight: 700;' : ''}">${chat.otherUser.firstName} ${chat.otherUser.lastName}</h4>
+                        <span style="font-size: 11px; color: ${isUnread ? 'var(--primary-color)' : 'var(--text-muted)'}; margin-left: 8px; flex-shrink: 0; ${isUnread ? 'font-weight: bold;' : ''}">${timeStr}</span>
                     </div>
-                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chat.lastMessage || 'Start chatting!'}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <p style="margin: 0; font-size: 13px; color: ${isUnread ? 'var(--text-primary)' : 'var(--text-secondary)'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${isUnread ? 'font-weight: 500;' : ''}">${chat.lastMessage || 'Start chatting!'}</p>
+                        ${isUnread ? `<span style="background: var(--primary-color); color: white; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; margin-left: 8px; flex-shrink: 0;">${unreadCount}</span>` : ''}
+                    </div>
                 </div>
             </div>
         `}).join('');
@@ -496,6 +547,9 @@ class Dashboard {
     async openChat(chatId, firstName, lastName) {
         this.activeChatId = chatId;
         
+        // Mark as read immediately
+        authManager.markChatAsRead(chatId);
+
         // Update UI
         document.getElementById('chat-header').style.display = 'flex';
         document.getElementById('chat-input-area').style.display = 'block';
