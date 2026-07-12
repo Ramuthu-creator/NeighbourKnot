@@ -792,21 +792,19 @@ if (document.readyState === 'loading') {
 }
 
 // Global helper functions
-function requireAuth() {
-    if (!authManager) {
-        window.location.href = 'login.html';
-        return null;
-    }
-    const user = authManager.getCurrentUser();
+function getCurrentUser() {
+    let user = authManager ? authManager.getCurrentUser() : null;
     if (!user) {
-        window.location.href = 'login.html';
+        const localUser = localStorage.getItem('neighborknot_user');
+        user = localUser ? JSON.parse(localUser) : null;
     }
     return user;
 }
 
-function getCurrentUser() {
-    if (!authManager) {
-        return null;
+function requireAuth() {
+    const user = getCurrentUser();
+    if (!user) {
+        window.location.href = 'login.html';
     }
-    return authManager.getCurrentUser();
+    return user;
 }

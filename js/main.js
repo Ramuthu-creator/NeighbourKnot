@@ -36,7 +36,7 @@ class App {
         document.querySelectorAll('nav a').forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('href');
-                if (href && href.startsWith('#')) {
+                if (href && href.startsWith('#') && href.length > 1) {
                     e.preventDefault();
                     const element = document.querySelector(href);
                     if (element) {
@@ -47,7 +47,7 @@ class App {
         });
 
         // Login button
-        const loginBtn = document.querySelector('.btn-login');
+        const loginBtn = document.querySelector('.btn-login:not(#logout-btn)');
         if (loginBtn) {
             loginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -252,19 +252,3 @@ function isLoggedIn() {
     return localStorage.getItem('neighborknot_user') !== null;
 }
 
-/**
- * Get current logged in user
- */
-function getCurrentUser() {
-    const user = localStorage.getItem('neighborknot_user');
-    return user ? JSON.parse(user) : null;
-}
-
-/**
- * Redirect to login if not authenticated
- */
-function requireAuth() {
-    if (!isLoggedIn()) {
-        window.location.href = 'login.html';
-    }
-}
