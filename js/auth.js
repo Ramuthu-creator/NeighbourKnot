@@ -347,30 +347,52 @@ class AuthManager {
      * @param {number} rating - Rating (1-5)
      * @param {string} comment - Review comment
      */
-    async addReview(reviewerId, rating, comment) {
+    async addReviewToUser(targetUserId, bookingId, rating, comment, isLearnerReviewing) {
         if (!this.currentUser) {
             return { success: false, error: 'No user logged in' };
         }
 
         try {
+            if (typeof db === 'undefined') {
+                return { success: false, error: 'Firebase not initialized' };
+            }
+
+            // Get target user
+            const targetDoc = await db.collection('users').doc(targetUserId).get();
+            if (!targetDoc.exists) {
+                return { success: false, error: 'Target user not found' };
+            }
+            const targetData = targetDoc.data();
+            const reviews = targetData.reviews || [];
+
             const review = {
                 id: this.generateId(),
-                reviewerId,
-                rating,
+                reviewerId: this.currentUser.id,
+                rating: Number(rating),
                 comment,
                 createdAt: new Date().toISOString()
             };
 
-            this.currentUser.reviews.push(review);
+            reviews.push(review);
 
-            // Update average rating
-            const totalRating = this.currentUser.reviews.reduce((sum, r) => sum + r.rating, 0);
-            const averageRating = totalRating / this.currentUser.reviews.length;
+            // Calculate new average rating
+            const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+            const averageRating = totalRating / reviews.length;
+            const finalRating = Math.round(averageRating * 10) / 10;
 
-            return await this.updateProfile({
-                reviews: this.currentUser.reviews,
-                rating: Math.round(averageRating * 10) / 10
+            // Update target user
+            await db.collection('users').doc(targetUserId).update({
+                reviews: reviews,
+                rating: finalRating
             });
+
+            // Update booking to mark it as reviewed
+            const reviewField = isLearnerReviewing ? 'reviewedByLearner' : 'reviewedByTeacher';
+            await db.collection('bookings').doc(bookingId).update({
+                [reviewField]: true
+            });
+
+            return { success: true };
         } catch (error) {
             console.error('Add review error:', error);
             return { success: false, error: error.message };
