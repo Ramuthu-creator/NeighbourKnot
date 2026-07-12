@@ -606,7 +606,6 @@ class AuthManager {
 
         return db.collection('chats')
             .where('participants', 'array-contains', this.currentUser.id)
-            .orderBy('updatedAt', 'desc')
             .onSnapshot(async (snapshot) => {
                 const chats = [];
                 for (let doc of snapshot.docs) {
@@ -619,6 +618,8 @@ class AuthManager {
                         otherUser: otherUser || { firstName: 'Unknown', lastName: 'User', profileImage: '' }
                     });
                 }
+                // Sort chats by updatedAt descending
+                chats.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
                 callback(chats);
             }, error => {
                 console.error("Chat subscription error:", error);
