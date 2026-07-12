@@ -624,15 +624,16 @@ class AuthManager {
      * Chat: Get user's active chats
      */
     subscribeToUserChats(callback) {
-        if (!this.currentUser || typeof db === 'undefined') return () => {};
+        const user = this.currentUser || (typeof getCurrentUser === 'function' ? getCurrentUser() : null);
+        if (!user || typeof db === 'undefined') return () => {};
 
         return db.collection('chats')
-            .where('participants', 'array-contains', this.currentUser.id)
+            .where('participants', 'array-contains', user.id)
             .onSnapshot(async (snapshot) => {
                 const chats = [];
                 for (let doc of snapshot.docs) {
                     const data = doc.data();
-                    const otherUserId = data.participants.find(id => id !== this.currentUser.id);
+                    const otherUserId = data.participants.find(id => id !== user.id);
                     const otherUser = await this.getUserById(otherUserId);
                     chats.push({
                         id: doc.id,
