@@ -269,6 +269,7 @@ class Dashboard {
         }
         
         if (result.success) {
+            this.user = getCurrentUser();
             showNotification(this.editingSkillId ? 'Skill updated successfully!' : 'Skill added successfully!', 'success');
             this.closeModal();
             this.renderSkills();
@@ -305,6 +306,7 @@ class Dashboard {
         if (confirm('Are you sure you want to delete this skill?')) {
             const result = await authManager.removeSkill(skillId);
             if (result.success) {
+                this.user = getCurrentUser();
                 showNotification('Skill deleted successfully!', 'success');
                 this.renderSkills();
                 this.renderStats();
@@ -321,6 +323,7 @@ class Dashboard {
         if (confirm('Are you sure you want to mark this session as completed?')) {
             const result = await authManager.updateBookingStatus(bookingId, 'completed');
             if (result.success) {
+                this.user = getCurrentUser();
                 showNotification('Session marked as completed!', 'success');
                 this.renderBookings();
                 this.renderStats();

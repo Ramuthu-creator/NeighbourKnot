@@ -398,10 +398,11 @@ class AuthManager {
             }
 
             // Update sender
-            this.currentUser.tokens -= amount;
-            await db.collection('users').doc(this.currentUser.id).update({ 
-                tokens: this.currentUser.tokens 
-            });
+            const newTokens = this.currentUser.tokens - amount;
+            const updateResult = await this.updateProfile({ tokens: newTokens });
+            if (!updateResult.success) {
+                return { success: false, error: 'Failed to update local profile' };
+            }
 
             // Update recipient
             const recipientDoc = await db.collection('users').doc(recipientId).get();
