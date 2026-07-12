@@ -362,25 +362,41 @@ class Dashboard {
     }
 
     renderConversations(chats) {
+        const badge = document.getElementById('message-badge');
+        if (badge) {
+            badge.textContent = chats.length;
+            badge.style.display = chats.length > 0 ? 'inline-block' : 'none';
+        }
+
         const list = document.getElementById('conversations-list');
         if (!list) return;
 
         if (chats.length === 0) {
-            list.innerHTML = '<p class="empty-state">No conversations yet</p>';
+            list.innerHTML = `
+                <div class="empty-state" style="padding: 20px; text-align: center;">
+                    <div class="empty-state-icon" style="font-size: 32px; margin-bottom: 12px;">💬</div>
+                    <h3 style="margin: 0 0 8px;">No conversations yet</h3>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Start a chat with a neighbor!</p>
+                </div>`;
             return;
         }
 
-        list.innerHTML = chats.map(chat => `
-            <div class="conversation-item ${this.activeChatId === chat.id ? 'active' : ''}" onclick="dashboard.openChat('${chat.id}', '${chat.otherUser.firstName}', '${chat.otherUser.lastName}')">
-                <div class="user-avatar" style="width: 40px; height: 40px; font-size: 14px;">
+        list.innerHTML = chats.map(chat => {
+            const timeStr = chat.updatedAt ? new Date(chat.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+            return `
+            <div class="conversation-item ${this.activeChatId === chat.id ? 'active' : ''}" onclick="dashboard.openChat('${chat.id}', '${chat.otherUser.firstName}', '${chat.otherUser.lastName}')" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--glass-border); cursor: pointer; transition: background 0.2s ease;">
+                <div class="user-avatar" style="width: 44px; height: 44px; font-size: 16px; flex-shrink: 0;">
                     ${getInitials(chat.otherUser.firstName, chat.otherUser.lastName)}
                 </div>
-                <div class="conversation-info">
-                    <h4>${chat.otherUser.firstName} ${chat.otherUser.lastName}</h4>
-                    <p>${chat.lastMessage || 'Start chatting!'}</p>
+                <div class="conversation-info" style="flex: 1; min-width: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                        <h4 style="margin: 0; font-size: 15px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chat.otherUser.firstName} ${chat.otherUser.lastName}</h4>
+                        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px; flex-shrink: 0;">${timeStr}</span>
+                    </div>
+                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chat.lastMessage || 'Start chatting!'}</p>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     }
 
     async openChat(chatId, firstName, lastName) {
@@ -408,23 +424,56 @@ class Dashboard {
 
         this.chatUnsubscribe = authManager.subscribeToMessages(chatId, (messages) => {
             if (messages.length === 0) {
-                chatMessages.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:var(--text-muted);">Say hello!</div>';
+                chatMessages.innerHTML = `
+                    <div class="chat-placeholder" style="display:flex; flex-direction:column; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">👋</div>
+                        <h3 style="margin: 0 0 8px; color: var(--text-primary);">Say hello!</h3>
+                        <p style="margin: 0; text-align: center; max-width: 200px;">Send the first message to start the conversation.</p>
+                    </div>`;
                 return;
             }
 
-            chatMessages.innerHTML = messages.map(msg => {
+            chatMessages.innerHTML = messages.map((msg, index) => {
                 const isSentByMe = msg.senderId === this.user.id;
                 const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let dateDivider = '';
+                if (index === 0 || new Date(messages[index-1].timestamp).toDateString() !== new Date(msg.timestamp).toDateString()) {
+                    const dateStr = new Date(msg.timestamp).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+                    dateDivider = `<div class="chat-date-divider" style="text-align: center; margin: 20px 0 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;"><span>${dateStr}</span></div>`;
+                }
+
                 return `
-                    <div class="chat-bubble ${isSentByMe ? 'sent' : 'received'}">
-                        <div>${msg.text}</div>
-                        <div class="chat-time">${timeStr}</div>
+                    ${dateDivider}
+                    <div class="chat-bubble ${isSentByMe ? 'sent' : 'received'}" style="animation: slideInUp 0.3s ease forwards; transform-origin: ${isSentByMe ? 'bottom right' : 'bottom left'};">
+                        <div style="margin-bottom: 2px;">${msg.text}</div>
+                        <div class="chat-time" style="font-size: 10px; opacity: 0.6; text-align: ${isSentByMe ? 'right' : 'left'}; margin-top: 4px;">${timeStr}</div>
                     </div>
                 `;
             }).join('');
 
+            // Add keyframes for animation if not present
+            if (!document.getElementById('chat-animations')) {
+                const style = document.createElement('style');
+                style.id = 'chat-animations';
+                style.innerHTML = `
+                    @keyframes slideInUp {
+                        from { opacity: 0; transform: translateY(10px) scale(0.95); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                    }
+                    .conversation-item:hover { background: rgba(255,255,255,0.05) !important; }
+                    .conversation-item.active { background: rgba(255,255,255,0.1) !important; border-left: 3px solid var(--primary-color); }
+                `;
+                document.head.appendChild(style);
+            }
+
             // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            setTimeout(() => {
+                chatMessages.scrollTo({
+                    top: chatMessages.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
         });
     }
 
