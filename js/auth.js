@@ -74,7 +74,7 @@ class AuthManager {
                 bio: userData.bio || '',
                 profileImage: userData.profileImage || '',
                 location: userData.location || '',
-                userType: userData.userType || 'learner',
+                userType: 'member',
                 skills: [],
                 tokens: 10, // Initial tokens
                 rating: 0,
@@ -736,8 +736,7 @@ class AuthManager {
             firstName: document.getElementById('firstName').value,
             lastName: document.getElementById('lastName').value,
             location: document.getElementById('location').value,
-            bio: document.getElementById('bio').value,
-            userType: document.getElementById('userType').value
+            bio: document.getElementById('bio').value
         };
 
         const result = await this.signUp(userData);
