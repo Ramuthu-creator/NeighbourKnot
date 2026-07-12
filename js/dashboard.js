@@ -107,7 +107,12 @@ class Dashboard {
             if (bookingList.length === 0) {
                 return '<p class="empty-state">No bookings found</p>';
             }
-            return bookingList.map(booking => `
+            return bookingList.map(booking => {
+                const isLearner = booking.learnerId === this.user.id;
+                const targetUserId = isLearner ? booking.teacherId : booking.learnerId;
+                const hasReviewed = isLearner ? booking.reviewedByLearner : booking.reviewedByTeacher;
+                
+                return `
                 <div class="booking-card">
                     <div>
                         <h3 style="color: var(--primary-color);">${booking.skillName}</h3>
@@ -123,15 +128,19 @@ class Dashboard {
                     <div class="booking-actions" style="display:flex; flex-direction:column; gap:8px;">
                         ${(booking.status === 'confirmed' || !booking.status) ? `
                             <button class="btn btn-primary" onclick="dashboard.startSession('${booking.id}')">Start</button>
-                            <button class="btn btn-secondary" onclick="dashboard.startNewChat('${booking.learnerId === this.user.id ? booking.teacherId : booking.learnerId}')">Message</button>
+                            <button class="btn btn-secondary" onclick="dashboard.startNewChat('${targetUserId}')">Message</button>
                             <button class="btn btn-secondary" onclick="dashboard.completeSession('${booking.id}')">Complete Session</button>
                         ` : `
-                            <button class="btn btn-secondary" onclick="dashboard.startNewChat('${booking.learnerId === this.user.id ? booking.teacherId : booking.learnerId}')">Message</button>
-                            <button class="btn btn-secondary" disabled>Completed</button>
+                            <button class="btn btn-secondary" onclick="dashboard.startNewChat('${targetUserId}')">Message</button>
+                            ${!hasReviewed ? `
+                                <button class="btn btn-primary" onclick="dashboard.openReviewModal('${booking.id}', '${targetUserId}', ${isLearner})">Leave Review</button>
+                            ` : `
+                                <button class="btn btn-secondary" disabled>Completed & Reviewed</button>
+                            `}
                         `}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         };
 
         upcomingBookings.innerHTML = renderBookingCards(upcoming);
@@ -190,6 +199,35 @@ class Dashboard {
             }
         });
 
+        // Review Modal
+        const reviewModal = document.getElementById('review-modal');
+        const reviewCloseBtn = document.getElementById('review-modal-close');
+        const reviewCancelBtn = document.getElementById('cancel-review-btn');
+        const reviewForm = document.getElementById('review-form');
+        const stars = document.querySelectorAll('#star-rating-selector span');
+
+        if (reviewModal) {
+            reviewCloseBtn.addEventListener('click', () => this.closeReviewModal());
+            reviewCancelBtn.addEventListener('click', () => this.closeReviewModal());
+            reviewForm.addEventListener('submit', (e) => this.handleReviewSubmit(e));
+            
+            reviewModal.addEventListener('click', (e) => {
+                if (e.target === reviewModal) {
+                    this.closeReviewModal();
+                }
+            });
+
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    const rating = e.target.dataset.value;
+                    document.getElementById('review-rating').value = rating;
+                    stars.forEach(s => {
+                        s.style.color = s.dataset.value <= rating ? '#fbbf24' : 'var(--glass-border)';
+                    });
+                });
+            });
+        }
+
         // Chat Form
         const chatForm = document.getElementById('chat-form');
         if (chatForm) {
@@ -245,6 +283,57 @@ class Dashboard {
         this.editingSkillId = null;
         const modalTitle = document.querySelector('#add-skill-modal .modal-header h2');
         if (modalTitle) modalTitle.textContent = 'Add New Skill';
+    }
+
+    openReviewModal(bookingId, targetUserId, isLearner) {
+        document.getElementById('review-booking-id').value = bookingId;
+        document.getElementById('review-target-id').value = targetUserId;
+        document.getElementById('review-is-learner').value = isLearner;
+        document.getElementById('review-modal').classList.add('show');
+    }
+
+    closeReviewModal() {
+        document.getElementById('review-modal').classList.remove('show');
+        document.getElementById('review-form').reset();
+        document.querySelectorAll('#star-rating-selector span').forEach(s => {
+            s.style.color = 'var(--glass-border)';
+        });
+        document.getElementById('review-rating').value = '';
+    }
+
+    async handleReviewSubmit(e) {
+        e.preventDefault();
+        
+        const bookingId = document.getElementById('review-booking-id').value;
+        const targetUserId = document.getElementById('review-target-id').value;
+        const isLearner = document.getElementById('review-is-learner').value === 'true';
+        const rating = document.getElementById('review-rating').value;
+        const comment = document.getElementById('review-comment').value;
+
+        if (!rating) {
+            showNotification('Please select a rating', 'error');
+            return;
+        }
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+            const result = await authManager.addReviewToUser(targetUserId, bookingId, rating, comment, isLearner);
+            if (result.success) {
+                showNotification('Review submitted successfully!', 'success');
+                this.closeReviewModal();
+                this.renderBookings(); // Refresh bookings to update button state
+            } else {
+                showNotification(result.error || 'Failed to submit review', 'error');
+            }
+        } catch (error) {
+            showNotification('An error occurred', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Review';
+        }
     }
 
     /**
