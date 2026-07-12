@@ -129,7 +129,7 @@ class Dashboard {
                         ${(booking.status === 'confirmed' || !booking.status) ? `
                             <button class="btn btn-primary" onclick="dashboard.startSession('${booking.id}')">Start</button>
                             <button class="btn btn-secondary" onclick="dashboard.startNewChat('${targetUserId}')">Message</button>
-                            <button class="btn btn-secondary" onclick="dashboard.completeSession('${booking.id}')">Complete Session</button>
+                            <button class="btn btn-secondary" onclick="dashboard.completeSession('${booking.id}', '${targetUserId}', ${isLearner})">Complete Session</button>
                         ` : `
                             <button class="btn btn-secondary" onclick="dashboard.startNewChat('${targetUserId}')">Message</button>
                             ${!hasReviewed ? `
@@ -408,7 +408,7 @@ class Dashboard {
     /**
      * Complete session
      */
-    async completeSession(bookingId) {
+    async completeSession(bookingId, targetUserId, isLearner) {
         if (confirm('Are you sure you want to mark this session as completed?')) {
             const result = await authManager.updateBookingStatus(bookingId, 'completed');
             if (result.success) {
@@ -416,6 +416,11 @@ class Dashboard {
                 showNotification('Session marked as completed!', 'success');
                 this.renderBookings();
                 this.renderStats();
+                
+                // Automatically prompt user to leave a review
+                if (targetUserId !== undefined && isLearner !== undefined) {
+                    this.openReviewModal(bookingId, targetUserId, isLearner);
+                }
             } else {
                 showNotification(result.error, 'error');
             }
