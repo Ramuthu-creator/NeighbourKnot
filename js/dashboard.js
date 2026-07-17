@@ -354,7 +354,7 @@ class Dashboard {
         const comment = document.getElementById('review-comment').value;
 
         if (!rating) {
-            showNotification('Please select a rating', 'error');
+            window.showToast('Please select a rating', 'error');
             return;
         }
 
@@ -365,14 +365,14 @@ class Dashboard {
         try {
             const result = await authManager.addReviewToUser(targetUserId, bookingId, rating, comment, isLearner);
             if (result.success) {
-                showNotification('Review submitted successfully!', 'success');
+                window.showToast('Review submitted successfully!', 'success');
                 this.closeReviewModal();
                 this.renderBookings(); // Refresh bookings to update button state
             } else {
-                showNotification(result.error || 'Failed to submit review', 'error');
+                window.showToast(result.error || 'Failed to submit review', 'error');
             }
         } catch (error) {
-            showNotification('An error occurred', 'error');
+            window.showToast('An error occurred', 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit Review';
@@ -402,12 +402,12 @@ class Dashboard {
         
         if (result.success) {
             this.user = getCurrentUser();
-            showNotification(this.editingSkillId ? 'Skill updated successfully!' : 'Skill added successfully!', 'success');
+            window.showToast(this.editingSkillId ? 'Skill updated successfully!' : 'Skill added successfully!', 'success');
             this.closeModal();
             this.renderSkills();
             this.renderStats();
         } else {
-            showNotification(result.error, 'error');
+            window.showToast(result.error, 'error');
         }
     }
 
@@ -439,11 +439,11 @@ class Dashboard {
             const result = await authManager.removeSkill(skillId);
             if (result.success) {
                 this.user = getCurrentUser();
-                showNotification('Skill deleted successfully!', 'success');
+                window.showToast('Skill deleted successfully!', 'success');
                 this.renderSkills();
                 this.renderStats();
             } else {
-                showNotification(result.error, 'error');
+                window.showToast(result.error, 'error');
             }
         }
     }
@@ -456,7 +456,7 @@ class Dashboard {
             const result = await authManager.updateBookingStatus(bookingId, 'completed');
             if (result.success) {
                 this.user = getCurrentUser();
-                showNotification('Session marked as completed!', 'success');
+                window.showToast('Session marked as completed!', 'success');
                 this.renderBookings();
                 this.renderStats();
                 
@@ -465,7 +465,7 @@ class Dashboard {
                     this.openReviewModal(bookingId, targetUserId, isLearner);
                 }
             } else {
-                showNotification(result.error, 'error');
+                window.showToast(result.error, 'error');
             }
         }
     }
@@ -477,7 +477,7 @@ class Dashboard {
         // Automatically create a secure, unique video room for this exact booking using Jitsi Meet
         const meetingUrl = `https://meet.jit.si/NeighborKnot_${bookingId}`;
         window.open(meetingUrl, '_blank');
-        showNotification('Joining live session room...', 'success');
+        window.showToast('Joining live session room...', 'success');
     }
 
     /**
@@ -485,7 +485,7 @@ class Dashboard {
      */
     rescheduleBooking(bookingId) {
         // TODO: Implement reschedule modal
-        showNotification('Reschedule feature coming soon!', 'info');
+        window.showToast('Reschedule feature coming soon!', 'info');
     }
 
     // ==========================================
@@ -637,7 +637,7 @@ class Dashboard {
         
         const result = await authManager.sendChatMessage(this.activeChatId, text);
         if (!result.success) {
-            showNotification('Failed to send message', 'error');
+            window.showToast('Failed to send message', 'error');
         }
     }
 
@@ -653,7 +653,7 @@ class Dashboard {
                 this.openChat(result.chatId, otherUser.firstName, otherUser.lastName);
             }
         } else {
-            showNotification('Could not start chat', 'error');
+            window.showToast('Could not start chat', 'error');
         }
     }
 }

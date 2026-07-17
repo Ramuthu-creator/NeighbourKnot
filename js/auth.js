@@ -740,16 +740,31 @@ class AuthManager {
      */
     async handleLogin(e) {
         e.preventDefault();
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.textContent : 'Login';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+        }
+
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
 
         const result = await this.login(email, password);
         if (result.success) {
-            window.location.href = 'dashboard.html';
+            window.showToast('Successfully logged in!', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
         } else {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
             // Clean up Firebase error message for display
             const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
-            showNotification(friendlyError || 'Login failed. Please check your credentials.', 'error');
+            window.showToast(friendlyError || 'Login failed. Please check your credentials.', 'error');
         }
     }
 
@@ -758,6 +773,13 @@ class AuthManager {
      */
     async handleSignup(e) {
         e.preventDefault();
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.textContent : 'Sign Up';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing up...';
+        }
         
         const userData = {
             email: document.getElementById('signup-email').value,
@@ -770,11 +792,18 @@ class AuthManager {
 
         const result = await this.signUp(userData);
         if (result.success) {
-            window.location.href = 'dashboard.html';
+            window.showToast('Account created successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
         } else {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
             // Clean up Firebase error message for display
             const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
-            showNotification(friendlyError || 'Signup failed. Please try again.', 'error');
+            window.showToast(friendlyError || 'Signup failed. Please try again.', 'error');
         }
     }
 
@@ -783,16 +812,27 @@ class AuthManager {
      */
     async handleGoogleSignIn(e) {
         e.preventDefault();
+        
+        const btn = e.currentTarget;
+        const originalHtml = btn ? btn.innerHTML : '<i class="fa-brands fa-google"></i> Continue with Google';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-brands fa-google"></i> Processing...';
+        }
+
         const result = await this.signInWithGoogle();
         if (result.success) {
-            window.location.href = 'dashboard.html';
+            window.showToast('Successfully logged in with Google!', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
         } else {
-            const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
-            if (typeof showNotification === 'function') {
-                showNotification(friendlyError || 'Google authentication failed.', 'error');
-            } else {
-                alert(friendlyError || 'Google authentication failed.');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
+            const friendlyError = result.error.replace(/^Firebase:\s*/, '').replace(/\s*\(auth\/.*\)\.$/, '');
+            window.showToast(friendlyError || 'Google authentication failed.', 'error');
         }
     }
 
@@ -800,8 +840,18 @@ class AuthManager {
      * Handle logout
      */
     handleLogout() {
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.disabled = true;
+            logoutBtn.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket"></i> Logging out...';
+        }
+
         this.logout();
-        window.location.href = 'index.html';
+        window.showToast('Successfully logged out!', 'info');
+        
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
     }
 }
 

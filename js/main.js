@@ -153,82 +153,68 @@ function debounce(func, delay) {
 /**
  * Show notification
  */
-function showNotification(message, type = 'info') {
-    // Remove existing notifications to avoid stacking too many
-    const existingNotifications = document.querySelectorAll('.custom-toast-notification');
-    existingNotifications.forEach(n => {
-        n.style.transform = 'translateY(-150%)';
-        n.style.opacity = '0';
-        setTimeout(() => n.remove(), 300);
-    });
-
-    const notification = document.createElement('div');
-    notification.className = `custom-toast-notification toast-${type}`;
+window.showToast = function(message, type = 'info') {
+    const toast = document.createElement('div');
     
-    // Select icon based on type
-    let iconSvg = '';
-    let bgColor = '';
-    
-    if (type === 'error') {
-        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
-        bgColor = 'rgba(244, 63, 94, 0.95)'; // Rose/Red
-    } else if (type === 'success') {
-        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
-        bgColor = 'rgba(16, 185, 129, 0.95)'; // Emerald/Green
-    } else {
-        iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
-        bgColor = 'rgba(14, 165, 233, 0.95)'; // Sky Blue
+    // Icon based on type
+    let icon = '<i class="fa-solid fa-circle-info"></i>';
+    let color = '#38bdf8'; // blue for info
+    if (type === 'success') {
+        icon = '<i class="fa-solid fa-circle-check"></i>';
+        color = '#34d399'; // green
+    } else if (type === 'error') {
+        icon = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        color = '#ef4444'; // red
     }
 
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; background: rgba(255,255,255,0.2); margin-right: 12px;">
-            ${iconSvg}
-        </div>
-        <div style="font-weight: 500; font-size: 15px; line-height: 1.4; letter-spacing: 0.3px;">
-            ${message}
-        </div>
+    // Glassmorphism styling & positioning
+    toast.style.position = 'fixed';
+    toast.style.top = '24px';
+    toast.style.right = '24px';
+    toast.style.background = 'rgba(15, 23, 42, 0.85)';
+    toast.style.backdropFilter = 'blur(16px)';
+    toast.style.webkitBackdropFilter = 'blur(16px)';
+    toast.style.border = `1px solid ${color}`;
+    toast.style.borderLeft = `4px solid ${color}`;
+    toast.style.borderRadius = '12px';
+    toast.style.padding = '16px 24px';
+    toast.style.color = 'white';
+    toast.style.display = 'flex';
+    toast.style.alignItems = 'center';
+    toast.style.gap = '12px';
+    toast.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.5)';
+    toast.style.zIndex = '9999';
+    toast.style.fontFamily = 'inherit';
+    toast.style.fontSize = '14px';
+    toast.style.fontWeight = '500';
+    toast.style.transform = 'translateX(120%)';
+    toast.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease';
+    toast.style.opacity = '0';
+    
+    toast.innerHTML = `
+        <span style="color: ${color}; font-size: 18px;">${icon}</span>
+        <span>${message}</span>
     `;
-
-    notification.style.cssText = `
-        position: fixed;
-        top: 24px;
-        left: 50%;
-        display: flex;
-        align-items: center;
-        width: max-content;
-        max-width: 90vw;
-        padding: 14px 24px;
-        background: ${bgColor};
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        color: white;
-        border-radius: 100px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        z-index: 99999;
-        transform: translate(-50%, -150%);
-        opacity: 0;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    `;
     
-    document.body.appendChild(notification);
+    document.body.appendChild(toast);
     
-    // Trigger reflow
-    notification.offsetHeight;
-    
-    // Slide in and fade in
-    notification.style.transform = 'translate(-50%, 0)';
-    notification.style.opacity = '1';
-    
+    // Trigger animation in
     setTimeout(() => {
-        notification.style.transform = 'translate(-50%, -150%)';
-        notification.style.opacity = '0';
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+    }, 10);
+    
+    // Trigger animation out after 3 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateX(120%)';
+        toast.style.opacity = '0';
         setTimeout(() => {
-            if (document.body.contains(notification)) {
-                notification.remove();
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
             }
-        }, 400);
-    }, 4500);
-}
+        }, 400); // Wait for transition
+    }, 3000);
+};
 
 /**
  * Validate email

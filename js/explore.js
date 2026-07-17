@@ -181,13 +181,13 @@ class Explore {
         const skill = this.filteredSkills.find(s => s.id === skillId);
         
         if (this.currentUser.tokens < skill.tokensPerHour) {
-            showNotification('Insufficient tokens! You need ' + skill.tokensPerHour + ' tokens to book this session.', 'error');
+            window.showToast('Insufficient tokens! You need ' + skill.tokensPerHour + ' tokens to book this session.', 'error');
             return;
         }
 
         const transferResult = await authManager.transferTokens(teacherId, skill.tokensPerHour, 'Booking: ' + skill.name);
         if (!transferResult.success) {
-            showNotification('Failed to transfer tokens: ' + transferResult.error, 'error');
+            window.showToast('Failed to transfer tokens: ' + transferResult.error, 'error');
             return;
         }
 
@@ -203,10 +203,11 @@ class Explore {
         const bookingResult = await authManager.createBooking(bookingData);
         if (bookingResult.success) {
             this.currentUser = getCurrentUser();
-            showNotification('Successfully booked session for ' + skill.name + '!', 'success');
+            this.currentUser.tokens -= skill.tokensPerHour;
+            window.showToast('Successfully booked session for ' + skill.name + '!', 'success');
             document.getElementById('skill-modal').classList.remove('show');
         } else {
-            showNotification('Failed to create booking: ' + bookingResult.error, 'error');
+            window.showToast('Failed to create booking: ' + bookingResult.error, 'error');
         }
     }
 

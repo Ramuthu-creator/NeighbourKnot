@@ -146,9 +146,9 @@ class Profile {
             this.user = result.user;
             this.renderProfile();
             this.closeEditModal();
-            showNotification('Profile updated successfully!', 'success');
+            window.showToast('Profile updated successfully!', 'success');
         } else {
-            showNotification(result.error, 'error');
+            window.showToast(result.error, 'error');
         }
     }
 }
