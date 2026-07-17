@@ -241,6 +241,63 @@ class Dashboard {
     closeModal() {
         document.getElementById('add-skill-modal').classList.remove('show');
         document.getElementById('add-skill-form').reset();
+<<<<<<< Updated upstream
+=======
+        this.editingSkillId = null;
+        const modalTitle = document.querySelector('#add-skill-modal .modal-header h2');
+        if (modalTitle) modalTitle.textContent = 'Add New Skill';
+    }
+
+    openReviewModal(bookingId, targetUserId, isLearner) {
+        document.getElementById('review-booking-id').value = bookingId;
+        document.getElementById('review-target-id').value = targetUserId;
+        document.getElementById('review-is-learner').value = isLearner;
+        document.getElementById('review-modal').classList.add('show');
+    }
+
+    closeReviewModal() {
+        document.getElementById('review-modal').classList.remove('show');
+        document.getElementById('review-form').reset();
+        document.querySelectorAll('#star-rating-selector span').forEach(s => {
+            s.style.color = 'var(--glass-border)';
+        });
+        document.getElementById('review-rating').value = '';
+    }
+
+    async handleReviewSubmit(e) {
+        e.preventDefault();
+        
+        const bookingId = document.getElementById('review-booking-id').value;
+        const targetUserId = document.getElementById('review-target-id').value;
+        const isLearner = document.getElementById('review-is-learner').value === 'true';
+        const rating = document.getElementById('review-rating').value;
+        const comment = document.getElementById('review-comment').value;
+
+        if (!rating) {
+            window.showToast('Please select a rating', 'error');
+            return;
+        }
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+            const result = await authManager.addReviewToUser(targetUserId, bookingId, rating, comment, isLearner);
+            if (result.success) {
+                window.showToast('Review submitted successfully!', 'success');
+                this.closeReviewModal();
+                this.renderBookings(); // Refresh bookings to update button state
+            } else {
+                window.showToast(result.error || 'Failed to submit review', 'error');
+            }
+        } catch (error) {
+            window.showToast('An error occurred', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Review';
+        }
+>>>>>>> Stashed changes
     }
 
     /**
@@ -259,12 +316,17 @@ class Dashboard {
         const result = await authManager.addSkill(skill);
         
         if (result.success) {
+<<<<<<< Updated upstream
             showNotification('Skill added successfully!', 'success');
+=======
+            this.user = getCurrentUser();
+            window.showToast(this.editingSkillId ? 'Skill updated successfully!' : 'Skill added successfully!', 'success');
+>>>>>>> Stashed changes
             this.closeModal();
             this.renderSkills();
             this.renderStats();
         } else {
-            showNotification(result.error, 'error');
+            window.showToast(result.error, 'error');
         }
     }
 
@@ -292,11 +354,16 @@ class Dashboard {
         if (confirm('Are you sure you want to delete this skill?')) {
             const result = await authManager.removeSkill(skillId);
             if (result.success) {
+<<<<<<< Updated upstream
                 showNotification('Skill deleted successfully!', 'success');
+=======
+                this.user = getCurrentUser();
+                window.showToast('Skill deleted successfully!', 'success');
+>>>>>>> Stashed changes
                 this.renderSkills();
                 this.renderStats();
             } else {
-                showNotification(result.error, 'error');
+                window.showToast(result.error, 'error');
             }
         }
     }
@@ -308,11 +375,16 @@ class Dashboard {
         if (confirm('Are you sure you want to mark this session as completed?')) {
             const result = await authManager.updateBookingStatus(bookingId, 'completed');
             if (result.success) {
+<<<<<<< Updated upstream
                 showNotification('Session marked as completed!', 'success');
+=======
+                this.user = getCurrentUser();
+                window.showToast('Session marked as completed!', 'success');
+>>>>>>> Stashed changes
                 this.renderBookings();
                 this.renderStats();
             } else {
-                showNotification(result.error, 'error');
+                window.showToast(result.error, 'error');
             }
         }
     }
@@ -324,7 +396,7 @@ class Dashboard {
         // Automatically create a secure, unique video room for this exact booking using Jitsi Meet
         const meetingUrl = `https://meet.jit.si/NeighborKnot_${bookingId}`;
         window.open(meetingUrl, '_blank');
-        showNotification('Joining live session room...', 'success');
+        window.showToast('Joining live session room...', 'success');
     }
 
     /**
@@ -332,7 +404,7 @@ class Dashboard {
      */
     rescheduleBooking(bookingId) {
         // TODO: Implement reschedule modal
-        showNotification('Reschedule feature coming soon!', 'info');
+        window.showToast('Reschedule feature coming soon!', 'info');
     }
 
     // ==========================================
@@ -424,7 +496,7 @@ class Dashboard {
         
         const result = await authManager.sendChatMessage(this.activeChatId, text);
         if (!result.success) {
-            showNotification('Failed to send message', 'error');
+            window.showToast('Failed to send message', 'error');
         }
     }
 
@@ -440,7 +512,7 @@ class Dashboard {
                 this.openChat(result.chatId, otherUser.firstName, otherUser.lastName);
             }
         } else {
-            showNotification('Could not start chat', 'error');
+            window.showToast('Could not start chat', 'error');
         }
     }
 }
