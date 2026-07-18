@@ -184,13 +184,56 @@ body {
 /* Responsive Navbar */
 @media (max-width: 768px) {
     .navbar-content {
-        flex-direction: column;
-        gap: 20px;
+        flex-direction: row;
+        padding: 16px;
     }
+    
+    .mobile-menu-btn {
+        display: block !important;
+        z-index: 1001;
+    }
+
     .nav-links {
-        flex-wrap: wrap;
-        gap: 16px;
-        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 80px 24px 24px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        gap: 24px;
+    }
+
+    .nav-links.active {
+        left: 0;
+    }
+    
+    .nav-links a {
+        font-size: 18px;
+        width: 100%;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Better Touch Targets for Mobile */
+    .btn {
+        min-height: 44px;
+    }
+    input, textarea, select {
+        min-height: 44px;
+        font-size: 16px !important; /* prevent iOS zoom */
+    }
+    body, html {
+        overflow-x: hidden;
     }
 }
 

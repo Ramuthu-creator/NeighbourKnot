@@ -19,6 +19,13 @@ class Dashboard {
         this.initMessaging();
         this.checkPendingChats();
 
+        // Handle navigation from insufficient tokens alert
+        if (localStorage.getItem('open_add_skill') === 'true') {
+            localStorage.removeItem('open_add_skill');
+            this.switchSection('my-skills');
+            setTimeout(() => this.openAddSkillModal(), 300);
+        }
+
         // Listen for real-time user updates
         document.addEventListener('userUpdated', (e) => {
             this.user = e.detail;
@@ -203,8 +210,8 @@ class Dashboard {
      * Setup event listeners
      */
     setupEventListeners() {
-        // Menu items
-        document.querySelectorAll('.menu-item').forEach(item => {
+        // Menu items & Bottom Nav items
+        document.querySelectorAll('.menu-item, .bottom-nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.switchSection(item.dataset.section);
@@ -324,12 +331,14 @@ class Dashboard {
             s.classList.remove('active');
         });
 
-        document.querySelectorAll('.menu-item').forEach(item => {
+        document.querySelectorAll('.menu-item, .bottom-nav-item').forEach(item => {
             item.classList.remove('active');
         });
 
         document.getElementById(section).classList.add('active');
-        document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        document.querySelectorAll(`[data-section="${section}"]`).forEach(item => {
+            item.classList.add('active');
+        });
     }
 
     /**

@@ -538,4 +538,61 @@ body.dashboard-body .footer {
         border-right: none;
         border-bottom: 1px solid var(--glass-border);
     }
+    
+    /* Dashboard Mobile Layout */
+    .sidebar {
+        display: none;
+    }
+    .dashboard-content {
+        padding-bottom: 80px;
+    }
+    .mobile-bottom-nav {
+        display: flex !important;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile Bottom Nav Styles */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--glass-border);
+    z-index: 1000;
+    justify-content: space-around;
+    padding: 12px 0 20px; /* extra padding for modern phones */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.bottom-nav-item i {
+    font-size: 20px;
+}
+
+.bottom-nav-item.active, .bottom-nav-item:hover {
+    color: var(--primary-color);
 }

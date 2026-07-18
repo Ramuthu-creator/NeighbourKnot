@@ -134,11 +134,22 @@ class Profile {
         e.preventDefault();
 
         const updates = {
-            firstName: document.getElementById('edit-firstName').value,
-            lastName: document.getElementById('edit-lastName').value,
-            location: document.getElementById('edit-location').value,
-            bio: document.getElementById('edit-bio').value
+            firstName: document.getElementById('edit-firstName').value.trim(),
+            lastName: document.getElementById('edit-lastName').value.trim(),
+            location: document.getElementById('edit-location').value.trim(),
+            bio: document.getElementById('edit-bio').value.trim()
         };
+
+        // Profile Completion Reward
+        let rewardGiven = false;
+        if (
+            updates.firstName && updates.lastName && updates.location && updates.bio &&
+            !this.user.profileCompletedRewardClaimed
+        ) {
+            updates.profileCompletedRewardClaimed = true;
+            updates.tokens = (this.user.tokens || 0) + 2;
+            rewardGiven = true;
+        }
 
         const result = await authManager.updateProfile(updates);
 
@@ -146,7 +157,11 @@ class Profile {
             this.user = result.user;
             this.renderProfile();
             this.closeEditModal();
-            window.showToast('Profile updated successfully!', 'success');
+            if (rewardGiven) {
+                window.showToast('Profile completed! You earned 2 free tokens.', 'success');
+            } else {
+                window.showToast('Profile updated successfully!', 'success');
+            }
         } else {
             window.showToast(result.error, 'error');
         }

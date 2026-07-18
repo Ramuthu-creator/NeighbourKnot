@@ -181,7 +181,27 @@ class Explore {
         const skill = this.filteredSkills.find(s => s.id === skillId);
         
         if (this.currentUser.tokens < skill.tokensPerHour) {
-            window.showToast('Insufficient tokens! You need ' + skill.tokensPerHour + ' tokens to book this session.', 'error');
+            let alertModal = document.getElementById('token-alert-modal');
+            if (!alertModal) {
+                alertModal = document.createElement('div');
+                alertModal.id = 'token-alert-modal';
+                alertModal.className = 'modal';
+                alertModal.innerHTML = `
+                    <div class="modal-content" style="max-width: 400px; text-align: center; padding: 32px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🪙</div>
+                        <h2 style="margin-bottom: 12px; color: var(--text-primary);">Insufficient Tokens!</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;">
+                            You don't have enough tokens to book this session. To earn more, you can either complete your profile or share your own skills by teaching others!
+                        </p>
+                        <div style="display: flex; gap: 12px; justify-content: center;">
+                            <button class="btn btn-secondary" onclick="document.getElementById('token-alert-modal').classList.remove('show')">Close</button>
+                            <button class="btn btn-primary" onclick="localStorage.setItem('open_add_skill', 'true'); window.location.href='dashboard.html'">Earn Tokens</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(alertModal);
+            }
+            alertModal.classList.add('show');
             return;
         }
 
