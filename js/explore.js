@@ -216,7 +216,7 @@ class Explore {
      */
     sendMessage(teacherId) {
         // Store intent in localStorage to be picked up by dashboard
-        localStorage.setItem('neighborknot_pending_chat', teacherId);
+        localStorage.setItem('pending_chat_target', teacherId);
         window.location.href = 'dashboard.html';
     }
 

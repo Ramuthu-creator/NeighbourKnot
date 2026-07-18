@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
     let db = null;
 
+    // Messaging Logic
+    window.sendMessageFromRequest = function(userId) {
+        localStorage.setItem('pending_chat_target', userId);
+        window.location.href = 'dashboard.html';
+    };
+
     // 1. Auth State & Initialization
     // Wait until firebase is available
     const initInterval = setInterval(() => {
@@ -184,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="skill-listing-footer" style="justify-content: flex-end;">
-                    <button class="book-btn" onclick="window.showToast('Message feature coming soon!', 'info')">Message User</button>
+                    <button class="book-btn" onclick="window.sendMessageFromRequest('${request.userId}')">Message User</button>
                 </div>
             </div>
         `;

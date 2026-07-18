@@ -33,9 +33,9 @@ class Dashboard {
      * Check for pending chats from other pages (like Explore)
      */
     checkPendingChats() {
-        const pendingTeacherId = localStorage.getItem('neighborknot_pending_chat');
+        const pendingTeacherId = localStorage.getItem('pending_chat_target');
         if (pendingTeacherId) {
-            localStorage.removeItem('neighborknot_pending_chat');
+            localStorage.removeItem('pending_chat_target');
             // Give Firebase a moment to load
             setTimeout(() => {
                 this.startNewChat(pendingTeacherId);
