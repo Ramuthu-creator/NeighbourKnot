@@ -211,7 +211,7 @@ body.dashboard-body .footer {
     border-color: var(--glass-border-light);
 }
 
-.stat-card { display: flex; gap: 20px; align-items: center; }
+.stat-card { display: flex; gap: 20px; align-items: center; cursor: pointer; }
 .stat-icon { font-size: 32px; background: rgba(255,255,255,0.05); width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; }
 .stat-content { display: flex; flex-direction: column; gap: 4px; }
 .stat-label { color: var(--text-secondary); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }

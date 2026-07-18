@@ -82,28 +82,28 @@
                 </div>
 
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card" id="stat-skills">
                         <div class="stat-icon">📚</div>
                         <div class="stat-content">
                             <p class="stat-label">Skills Offered</p>
                             <h3 class="stat-value" id="skills-count">0</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="stat-sessions">
                         <div class="stat-icon">👥</div>
                         <div class="stat-content">
                             <p class="stat-label">Sessions Completed</p>
                             <h3 class="stat-value" id="sessions-count">0</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="stat-rating">
                         <div class="stat-icon">⭐</div>
                         <div class="stat-content">
                             <p class="stat-label">Rating</p>
                             <h3 class="stat-value" id="rating-value">0.0</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="stat-reviews">
                         <div class="stat-icon">🏆</div>
                         <div class="stat-content">
                             <p class="stat-label">Reviews</p>
@@ -296,11 +296,11 @@
                 <div class="form-group">
                     <label>Rating</label>
                     <div class="star-rating" id="star-rating-selector" style="font-size: 28px; cursor: pointer; color: var(--glass-border);">
-                        <span data-value="1">★</span>
-                        <span data-value="2">★</span>
-                        <span data-value="3">★</span>
-                        <span data-value="4">★</span>
-                        <span data-value="5">★</span>
+                        <span data-value="1" style="transition: all 0.2s ease; display: inline-block;">★</span>
+                        <span data-value="2" style="transition: all 0.2s ease; display: inline-block;">★</span>
+                        <span data-value="3" style="transition: all 0.2s ease; display: inline-block;">★</span>
+                        <span data-value="4" style="transition: all 0.2s ease; display: inline-block;">★</span>
+                        <span data-value="5" style="transition: all 0.2s ease; display: inline-block;">★</span>
                     </div>
                     <input type="hidden" id="review-rating" name="rating" required>
                 </div>

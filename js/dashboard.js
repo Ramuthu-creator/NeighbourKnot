@@ -18,6 +18,15 @@ class Dashboard {
         await this.renderReviews();
         this.initMessaging();
         this.checkPendingChats();
+
+        // Listen for real-time user updates
+        document.addEventListener('userUpdated', (e) => {
+            this.user = e.detail;
+            this.renderUserInfo();
+            this.renderStats();
+            this.renderSkills();
+            this.renderReviews();
+        });
     }
 
     /**
@@ -54,10 +63,10 @@ class Dashboard {
      * Render dashboard statistics
      */
     renderStats() {
-        document.getElementById('skills-count').textContent = this.user.skills.length;
+        document.getElementById('skills-count').textContent = this.user.skills ? this.user.skills.length : 0;
         document.getElementById('sessions-count').textContent = this.user.totalSessions || 0;
-        document.getElementById('rating-value').textContent = this.user.rating.toFixed(1);
-        document.getElementById('reviews-count').textContent = this.user.reviews.length;
+        document.getElementById('rating-value').textContent = (this.user.rating || 0).toFixed(1);
+        document.getElementById('reviews-count').textContent = this.user.reviews ? this.user.reviews.length : 0;
     }
 
     /**
@@ -202,6 +211,19 @@ class Dashboard {
             });
         });
 
+        // Stat Cards Interactivity
+        const statSkills = document.getElementById('stat-skills');
+        if (statSkills) statSkills.addEventListener('click', () => this.switchSection('my-skills'));
+        
+        const statSessions = document.getElementById('stat-sessions');
+        if (statSessions) statSessions.addEventListener('click', () => this.switchSection('bookings'));
+        
+        const statRating = document.getElementById('stat-rating');
+        if (statRating) statRating.addEventListener('click', () => this.switchSection('reviews'));
+        
+        const statReviews = document.getElementById('stat-reviews');
+        if (statReviews) statReviews.addEventListener('click', () => this.switchSection('reviews'));
+
         // Quick action buttons
         document.getElementById('add-skill-btn').addEventListener('click', () => {
             this.openAddSkillModal();
@@ -261,11 +283,27 @@ class Dashboard {
             });
 
             stars.forEach(star => {
+                star.addEventListener('mouseover', (e) => {
+                    const rating = e.target.dataset.value;
+                    stars.forEach(s => {
+                        s.style.color = s.dataset.value <= rating ? '#fbbf24' : 'var(--glass-border)';
+                    });
+                });
+                
+                star.addEventListener('mouseout', () => {
+                    const currentRating = document.getElementById('review-rating').value;
+                    stars.forEach(s => {
+                        s.style.color = currentRating && s.dataset.value <= currentRating ? '#fbbf24' : 'var(--glass-border)';
+                    });
+                });
+
                 star.addEventListener('click', (e) => {
                     const rating = e.target.dataset.value;
                     document.getElementById('review-rating').value = rating;
                     stars.forEach(s => {
                         s.style.color = s.dataset.value <= rating ? '#fbbf24' : 'var(--glass-border)';
+                        s.style.transform = s.dataset.value <= rating ? 'scale(1.2)' : 'scale(1)';
+                        setTimeout(() => s.style.transform = 'scale(1)', 200);
                     });
                 });
             });
@@ -336,12 +374,30 @@ class Dashboard {
     }
 
     closeReviewModal() {
-        document.getElementById('review-modal').classList.remove('show');
-        document.getElementById('review-form').reset();
-        document.querySelectorAll('#star-rating-selector span').forEach(s => {
-            s.style.color = 'var(--glass-border)';
-        });
-        document.getElementById('review-rating').value = '';
+        const modal = document.getElementById('review-modal');
+        const content = modal.querySelector('.modal-content');
+        
+        modal.style.animation = 'none';
+        modal.offsetHeight; // trigger reflow
+        modal.style.animation = 'fadeIn 0.3s ease-out reverse';
+        
+        if (content) {
+            content.style.animation = 'none';
+            content.offsetHeight;
+            content.style.animation = 'slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards';
+        }
+
+        setTimeout(() => {
+            modal.classList.remove('show');
+            modal.style.animation = '';
+            if (content) content.style.animation = '';
+            document.getElementById('review-form').reset();
+            document.querySelectorAll('#star-rating-selector span').forEach(s => {
+                s.style.color = 'var(--glass-border)';
+                s.style.transform = 'scale(1)';
+            });
+            document.getElementById('review-rating').value = '';
+        }, 280);
     }
 
     async handleReviewSubmit(e) {

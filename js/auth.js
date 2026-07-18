@@ -22,9 +22,22 @@ class AuthManager {
             if (typeof auth !== 'undefined' && auth && auth.onAuthStateChanged) {
                 auth.onAuthStateChanged((firebaseUser) => {
                     if (firebaseUser) {
-                        this.loadCurrentUserFromFirestore(firebaseUser.uid);
+                        if (this.userUnsubscribe) this.userUnsubscribe();
+                        this.userUnsubscribe = db.collection('users').doc(firebaseUser.uid).onSnapshot(doc => {
+                            if (doc.exists) {
+                                this.currentUser = { id: firebaseUser.uid, ...doc.data() };
+                                localStorage.setItem('neighborknot_user', JSON.stringify(this.currentUser));
+                                // Dispatch event so UI can update instantly
+                                document.dispatchEvent(new CustomEvent('userUpdated', { detail: this.currentUser }));
+                            }
+                        });
                     } else {
+                        if (this.userUnsubscribe) {
+                            this.userUnsubscribe();
+                            this.userUnsubscribe = null;
+                        }
                         this.currentUser = null;
+                        localStorage.removeItem('neighborknot_user');
                     }
                 });
             } else {
