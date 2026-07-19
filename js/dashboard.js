@@ -121,10 +121,10 @@ class Dashboard {
         const past = bookings.filter(b => b.status === 'completed');
 
         const renderBookingCards = (bookingList) => {
-            if (bookingList.length === 0) {
-                return '<p class="empty-state">No bookings found</p>';
-            }
-            return bookingList.map(booking => {
+            const learningList = bookingList.filter(b => b.learnerId === this.user.id);
+            const teachingList = bookingList.filter(b => b.teacherId === this.user.id);
+
+            const renderCard = (booking) => {
                 const isLearner = booking.learnerId === this.user.id;
                 const targetUserId = isLearner ? booking.teacherId : booking.learnerId;
                 const hasReviewed = isLearner ? booking.reviewedByLearner : booking.reviewedByTeacher;
@@ -146,7 +146,7 @@ class Dashboard {
                         ${(booking.status === 'confirmed' || !booking.status) ? `
                             <button class="btn btn-primary" onclick="dashboard.startSession('${booking.id}')">Start</button>
                             <button class="btn btn-secondary" onclick="dashboard.startNewChat('${targetUserId}')">Message</button>
-                            <button class="btn btn-secondary" onclick="dashboard.completeSession('${booking.id}', '${targetUserId}', ${isLearner})">Complete Session</button>
+                            ${isLearner ? `<button class="btn btn-secondary" onclick="dashboard.completeSession('${booking.id}', '${targetUserId}', ${isLearner}, ${booking.tokensCost})">Complete Session</button>` : ''}
                         ` : `
                             <button class="btn btn-secondary" onclick="dashboard.startNewChat('${targetUserId}')">Message</button>
                             ${!hasReviewed ? `
@@ -157,7 +157,26 @@ class Dashboard {
                         `}
                     </div>
                 </div>
-            `}).join('');
+                `;
+            };
+
+            let html = '';
+
+            html += `<h3 style="margin-bottom: 16px; color: var(--text-primary);">Sessions I'm Learning</h3>`;
+            if (learningList.length === 0) {
+                html += '<p class="empty-state" style="margin-bottom: 24px;">No learning sessions found</p>';
+            } else {
+                html += '<div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">' + learningList.map(renderCard).join('') + '</div>';
+            }
+
+            html += `<h3 style="margin-bottom: 16px; color: var(--text-primary);">Sessions I'm Teaching</h3>`;
+            if (teachingList.length === 0) {
+                html += '<p class="empty-state">No teaching sessions found</p>';
+            } else {
+                html += '<div style="display: flex; flex-direction: column; gap: 16px;">' + teachingList.map(renderCard).join('') + '</div>';
+            }
+
+            return html;
         };
 
         upcomingBookings.innerHTML = renderBookingCards(upcoming);
@@ -516,12 +535,12 @@ class Dashboard {
     /**
      * Complete session
      */
-    async completeSession(bookingId, targetUserId, isLearner) {
+    async completeSession(bookingId, targetUserId, isLearner, tokensCost) {
         if (confirm('Are you sure you want to mark this session as completed?')) {
-            const result = await authManager.updateBookingStatus(bookingId, 'completed');
+            const result = await authManager.completeBooking(bookingId, targetUserId, tokensCost);
             if (result.success) {
                 this.user = getCurrentUser();
-                window.showToast('Session marked as completed!', 'success');
+                window.showToast('Session marked as completed and tokens transferred!', 'success');
                 this.renderBookings();
                 this.renderStats();
                 

@@ -475,6 +475,23 @@ class AuthManager {
     }
 
     /**
+     * Deduct tokens from current user
+     * @param {number} amount - Amount of tokens
+     */
+    async deductTokens(amount) {
+        if (!this.currentUser) return { success: false, error: 'No user logged in' };
+        if (this.currentUser.tokens < amount) return { success: false, error: 'Insufficient tokens' };
+        try {
+            const newTokens = this.currentUser.tokens - amount;
+            const updateResult = await this.updateProfile({ tokens: newTokens });
+            if (!updateResult.success) return { success: false, error: 'Failed to deduct tokens' };
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
      * Create a new booking
      * @param {Object} bookingData - Booking details
      */
@@ -498,6 +515,7 @@ class AuthManager {
                 time: bookingData.time,
                 tokensCost: bookingData.tokensCost,
                 status: 'confirmed',
+                tokensTransferred: false,
                 createdAt: new Date().toISOString()
             };
 
@@ -576,6 +594,38 @@ class AuthManager {
             return { success: true };
         } catch (error) {
             console.error('Update booking error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Complete booking and transfer escrowed tokens to teacher
+     * @param {string} bookingId - Booking ID
+     * @param {string} teacherId - Teacher user ID
+     * @param {number} tokensCost - Amount of tokens to transfer
+     */
+    async completeBooking(bookingId, teacherId, tokensCost) {
+        if (!this.currentUser) return { success: false, error: 'Not logged in' };
+        
+        try {
+            if (typeof db === 'undefined') return { success: false, error: 'Firebase not initialized' };
+            
+            // Add tokens to teacher
+            const teacherDoc = await db.collection('users').doc(teacherId).get();
+            if (teacherDoc.exists) {
+                const newTokens = (teacherDoc.data().tokens || 0) + tokensCost;
+                await db.collection('users').doc(teacherId).update({ tokens: newTokens });
+            }
+            
+            // Update booking status and tokens transferred flag
+            await db.collection('bookings').doc(bookingId).update({ 
+                status: 'completed',
+                tokensTransferred: true
+            });
+            
+            return { success: true };
+        } catch (error) {
+            console.error('Complete booking error:', error);
             return { success: false, error: error.message };
         }
     }

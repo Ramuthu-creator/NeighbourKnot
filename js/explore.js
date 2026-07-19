@@ -205,9 +205,9 @@ class Explore {
             return;
         }
 
-        const transferResult = await authManager.transferTokens(teacherId, skill.tokensPerHour, 'Booking: ' + skill.name);
-        if (!transferResult.success) {
-            window.showToast('Failed to transfer tokens: ' + transferResult.error, 'error');
+        const deductResult = await authManager.deductTokens(skill.tokensPerHour);
+        if (!deductResult.success) {
+            window.showToast('Failed to deduct tokens: ' + deductResult.error, 'error');
             return;
         }
 
