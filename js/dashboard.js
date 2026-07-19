@@ -120,7 +120,7 @@ class Dashboard {
         const upcoming = bookings.filter(b => b.status === 'confirmed' || !b.status);
         const past = bookings.filter(b => b.status === 'completed');
 
-        const renderBookingCards = (bookingList) => {
+        const renderBookingCards = (bookingList, type) => {
             const learningList = bookingList.filter(b => b.learnerId === this.user.id);
             const teachingList = bookingList.filter(b => b.teacherId === this.user.id);
 
@@ -162,25 +162,37 @@ class Dashboard {
 
             let html = '';
 
-            html += `<h3 style="margin-bottom: 16px; color: var(--text-primary);">Sessions I'm Learning</h3>`;
-            if (learningList.length === 0) {
-                html += '<p class="empty-state" style="margin-bottom: 24px;">No learning sessions found</p>';
-            } else {
-                html += '<div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">' + learningList.map(renderCard).join('') + '</div>';
-            }
+            // Sub-tabs toggle buttons
+            html += `
+            <div class="sub-tabs-container" style="display: flex; gap: 12px; margin-bottom: 24px; padding: 4px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; width: fit-content;">
+                <button class="btn btn-primary" onclick="dashboard.toggleSubTab('${type}', 'learning')" id="${type}-learning-btn" style="border-radius: 20px; padding: 8px 24px; font-size: 14px; margin: 0; box-shadow: none;">Learning</button>
+                <button class="btn" style="background: transparent; color: var(--text-secondary); border-radius: 20px; padding: 8px 24px; font-size: 14px; margin: 0; border: none;" onclick="dashboard.toggleSubTab('${type}', 'teaching')" id="${type}-teaching-btn">Teaching</button>
+            </div>
+            `;
 
-            html += `<h3 style="margin-bottom: 16px; color: var(--text-primary);">Sessions I'm Teaching</h3>`;
+            // Learning Section (Default visible)
+            html += `<div id="${type}-learning-section" class="sub-tab-section">`;
+            if (learningList.length === 0) {
+                html += '<p class="empty-state">No learning sessions found</p>';
+            } else {
+                html += '<div style="display: flex; flex-direction: column; gap: 16px;">' + learningList.map(renderCard).join('') + '</div>';
+            }
+            html += `</div>`;
+
+            // Teaching Section (Default hidden)
+            html += `<div id="${type}-teaching-section" class="sub-tab-section" style="display: none;">`;
             if (teachingList.length === 0) {
                 html += '<p class="empty-state">No teaching sessions found</p>';
             } else {
                 html += '<div style="display: flex; flex-direction: column; gap: 16px;">' + teachingList.map(renderCard).join('') + '</div>';
             }
+            html += `</div>`;
 
             return html;
         };
 
-        upcomingBookings.innerHTML = renderBookingCards(upcoming);
-        pastBookings.innerHTML = renderBookingCards(past);
+        upcomingBookings.innerHTML = renderBookingCards(upcoming, 'upcoming');
+        pastBookings.innerHTML = renderBookingCards(past, 'past');
     }
 
     /**
@@ -374,6 +386,44 @@ class Dashboard {
 
         document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
         document.getElementById(`${tab}-bookings`).style.display = 'block';
+    }
+
+    /**
+     * Toggle learning/teaching sub-tabs
+     */
+    toggleSubTab(type, tab) {
+        // Hide both sections
+        document.getElementById(`${type}-learning-section`).style.display = 'none';
+        document.getElementById(`${type}-teaching-section`).style.display = 'none';
+
+        // Update button styles
+        const learningBtn = document.getElementById(`${type}-learning-btn`);
+        const teachingBtn = document.getElementById(`${type}-teaching-btn`);
+        
+        if (tab === 'learning') {
+            learningBtn.className = 'btn btn-primary';
+            learningBtn.style.background = '';
+            learningBtn.style.color = '';
+            learningBtn.style.border = '';
+            
+            teachingBtn.className = 'btn';
+            teachingBtn.style.background = 'transparent';
+            teachingBtn.style.color = 'var(--text-secondary)';
+            teachingBtn.style.border = 'none';
+        } else {
+            teachingBtn.className = 'btn btn-primary';
+            teachingBtn.style.background = '';
+            teachingBtn.style.color = '';
+            teachingBtn.style.border = '';
+            
+            learningBtn.className = 'btn';
+            learningBtn.style.background = 'transparent';
+            learningBtn.style.color = 'var(--text-secondary)';
+            learningBtn.style.border = 'none';
+        }
+
+        // Show active section
+        document.getElementById(`${type}-${tab}-section`).style.display = 'block';
     }
 
     /**
